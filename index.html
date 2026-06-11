@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ETF 長期投資策略與風險試算 (雙核精算版)</title>
+    <title>ETF 長期投資策略與風險試算 (四核精算版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -79,17 +79,29 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+        
+        /* 迷你滑桿樣式 */
+        .mini-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid currentColor;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body class="p-4 md:p-8">
-    <div class="max-w-7xl mx-auto glass-panel rounded-2xl overflow-hidden border border-stone-200">
+    <div class="max-w-7xl mx-auto glass-panel rounded-2xl border border-stone-200">
         
-        <div class="relative bg-[#FDFCF8]/60 border-b border-stone-200 p-8 text-center overflow-hidden">
+        <div class="relative bg-[#FDFCF8]/60 border-b border-stone-200 p-8 text-center overflow-hidden rounded-t-2xl">
             <h1 class="text-3xl md:text-4xl font-black tracking-wider text-gradient-earth relative z-10" style="font-family: var(--font-sans);">
                 QUANT TERMINAL: ETF 財富精算引擎
             </h1>
             <p class="mt-3 text-stone-500 font-medium tracking-widest relative z-10 text-sm md:text-base">
-                雙核投組回測 / 風險壓力測試 / 情境推演分析
+                四核矩陣回測 / 風險壓力測試 / 情境推演分析
             </p>
         </div>
 
@@ -130,17 +142,18 @@
                                 <input type="number" id="tradingFee" value="0.05" step="0.01" min="0" class="w-full p-2 rounded-lg input-light text-right font-mono text-sm text-slate-700">
                             </div>
                             <div class="relative">
-                                <label class="block text-blue-700 font-medium mb-1 text-[11px]">被動總費用率(TER)</label>
-                                <input type="number" id="passiveMgmtFee" value="0.43" step="0.01" min="0" class="w-full p-2 rounded-lg input-light text-right font-mono text-sm text-blue-700 pr-8">
+                                <label class="block text-blue-700 font-medium mb-1 text-[11px]">被動加權費用率</label>
+                                <input type="number" id="passiveMgmtFee" value="0.43" step="0.01" min="0" class="w-full p-2 rounded-lg input-light text-right font-mono text-sm text-blue-700 pr-8" readonly title="系統依據標的權重自動結算">
                             </div>
                             <div class="relative">
-                                <label class="block text-rose-700 font-medium mb-1 text-[11px]">主動總費用率(TER)</label>
-                                <input type="number" id="activeMgmtFee" value="0.45" step="0.01" min="0" class="w-full p-2 rounded-lg input-light text-right font-mono text-sm text-rose-700 pr-8">
+                                <label class="block text-rose-700 font-medium mb-1 text-[11px]">主動加權費用率</label>
+                                <input type="number" id="activeMgmtFee" value="0.45" step="0.01" min="0" class="w-full p-2 rounded-lg input-light text-right font-mono text-sm text-rose-700 pr-8" readonly title="系統依據標的權重自動結算">
                             </div>
                         </div>
+                        <p class="text-[10px] text-slate-400 mt-2 leading-tight">註：系統將根據您所選的標的與內部配置權重，自動精算出<strong class="text-slate-500">「加權總費用率 (Weighted TER)」</strong>以計算真實摩擦損耗。</p>
                     </div>
 
-                    <!-- 總體經濟情境預測 (NEW) -->
+                    <!-- 總體經濟情境預測 -->
                     <div class="border-t border-slate-200 pt-5 mt-0 bg-stone-50/80 -mx-6 px-6 pb-5">
                         <label class="block text-slate-800 font-bold mb-3 flex items-center">
                             <svg class="w-4 h-4 mr-1 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
@@ -165,11 +178,34 @@
                         </p>
                     </div>
 
+                    <!-- 🤖 AI 智能推薦組合 (NEW) -->
+                    <div class="border-t border-slate-200 pt-5 mt-0 bg-indigo-50/40 -mx-6 px-6 pb-5">
+                        <label class="block text-indigo-900 font-bold mb-3 flex items-center">
+                            <svg class="w-4 h-4 mr-1 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            🤖 AI 智能投組推薦 (Smart Portfolios)
+                        </label>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <button id="btnPresetBalanced" class="text-left p-3 rounded-xl border border-indigo-200 bg-white hover:bg-indigo-50 hover:border-indigo-300 transition-all shadow-sm group cursor-pointer">
+                                <div class="text-xs font-black text-indigo-700 mb-1">🛡️ 穩健護城河</div>
+                                <div class="text-[10px] text-slate-500 leading-tight">70% 高息防禦 (00878+00713)<br>30% 台灣科技 (00881)</div>
+                            </button>
+                            <button id="btnPresetTech" class="text-left p-3 rounded-xl border border-blue-200 bg-white hover:bg-blue-50 hover:border-blue-300 transition-all shadow-sm group cursor-pointer">
+                                <div class="text-xs font-black text-blue-700 mb-1">🌍 全球科技巨頭</div>
+                                <div class="text-[10px] text-slate-500 leading-tight">50% 台股市值 (006208)<br>50% 美股科技 (FANG+S&P成長)</div>
+                            </button>
+                            <button id="btnPresetAggressive" class="text-left p-3 rounded-xl border border-rose-200 bg-white hover:bg-rose-50 hover:border-rose-300 transition-all shadow-sm group cursor-pointer">
+                                <div class="text-xs font-black text-rose-700 mb-1">🔥 極致動能飆股</div>
+                                <div class="text-[10px] text-slate-500 leading-tight">30% 動能高息 (00915)<br>70% 動能半導 (00733+00830)</div>
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="border-t border-slate-200 pt-5 mt-0">
                         <div class="flex items-center justify-between mb-3">
-                            <label class="block text-slate-800 font-bold">投資組合配置 (Portfolio Config)</label>
+                            <label class="block text-slate-800 font-bold">資產配置與標的 (Portfolio Matrix)</label>
                         </div>
                         
+                        <!-- 主被動比例分配滑桿 -->
                         <div class="mb-4">
                             <div class="flex justify-between text-sm font-bold mb-2">
                                 <span class="text-blue-600">🛡️ 被動 <span id="passiveRatioText" class="font-mono text-lg">50</span>%</span>
@@ -178,31 +214,58 @@
                             <input type="range" id="allocationSlider" min="0" max="100" step="5" value="50" class="w-full h-2 bg-gradient-to-r from-blue-500 to-rose-400 rounded-lg appearance-none cursor-pointer">
                         </div>
 
+                        <!-- 🛡️ 被動核心選單群 (雙標的) -->
                         <div class="bg-blue-50/50 p-3 rounded-xl border border-blue-100 mb-3">
-                            <label class="block text-blue-800 font-bold mb-2 text-sm">🛡️ 被動型核心 (Core)</label>
+                            <label class="block text-blue-800 font-bold mb-2 text-sm">🛡️ 被動型核心 (Core Matrix)</label>
                             <select id="passiveEtfSelect" class="w-full p-2 rounded-lg input-light text-sm font-medium text-slate-700 mb-2 bg-white">
-                                <option value="history_006208" selected>👑 006208 富邦台50 (低內扣優化)</option>
-                                <option value="history_0050">👑 0050 台灣50 (大盤市值型)</option>
+                                <option value="history_006208" selected>👑 006208 富邦台50 (市值型)</option>
+                                <option value="history_0050">👑 0050 台灣50 (市值型)</option>
                                 <option value="history_00692">🌱 00692 富邦公司治理 (ESG大盤)</option>
-                                <option value="history_00878">🛡️ 00878 國泰永續高股息 (國民防禦)</option>
+                                <option value="history_00878">🛡️ 00878 國泰永續高股息 (防禦型)</option>
                                 <option value="history_00713">🛡️ 00713 元大高息低波 (極致抗跌)</option>
                                 <option value="history_0056">💰 0056 元大高股息 (老牌高息)</option>
-                                <option value="history_00919">💰 00919 群益台灣精選高息 (高配息率)</option>
-                                <option value="history_00929">💻 00929 復華台灣科技優息 (科技月配)</option>
+                                <option value="history_00919">💰 00919 群益台灣精選高息 (高配息)</option>
+                                <option value="history_00929">💻 00929 復華台灣科技優息 (科技配息)</option>
                                 <option value="history_00915">📈 00915 凱基優選高股息30 (動能高息)</option>
                                 <option value="history_00940">🐋 00940 元大台灣價值高息 (價值投資)</option>
                                 <option value="9">📈 理論平滑均值 (固定年化 9%)</option>
                             </select>
-                            <div class="flex justify-between items-end border-t border-blue-100/50 pt-2">
-                                <span class="text-[10px] text-blue-600/70 font-medium">配置本金 <span id="passivePrincipal" class="font-mono font-bold text-blue-600 text-sm ml-1">--</span></span>
-                                <span class="text-[10px] text-blue-600/70 font-medium">定額 <span id="passiveMonthly" class="font-mono font-bold text-blue-600 text-sm ml-1">--</span></span>
+                            
+                            <select id="passiveEtfSelect2" class="w-full p-2 rounded-lg input-light text-sm font-medium text-slate-500 bg-white/70 focus:bg-white transition-colors">
+                                <option value="none" selected>🚫 -- (選填) 搭配第二檔被動標的 --</option>
+                                <option value="history_006208">👑 006208 富邦台50 (市值型)</option>
+                                <option value="history_0050">👑 0050 台灣50 (市值型)</option>
+                                <option value="history_00692">🌱 00692 富邦公司治理 (ESG大盤)</option>
+                                <option value="history_00878">🛡️ 00878 國泰永續高股息 (防禦型)</option>
+                                <option value="history_00713">🛡️ 00713 元大高息低波 (極致抗跌)</option>
+                                <option value="history_0056">💰 0056 元大高股息 (老牌高息)</option>
+                                <option value="history_00919">💰 00919 群益台灣精選高息 (高配息)</option>
+                                <option value="history_00929">💻 00929 復華台灣科技優息 (科技配息)</option>
+                                <option value="history_00915">📈 00915 凱基優選高股息30 (動能高息)</option>
+                                <option value="history_00940">🐋 00940 元大台灣價值高息 (價值投資)</option>
+                                <option value="9">📈 理論平滑均值 (固定年化 9%)</option>
+                            </select>
+
+                            <!-- 被動內部權重微調 -->
+                            <div id="passiveSubBox" class="mt-3 bg-white/60 p-2 rounded-lg border border-blue-200/50 hidden">
+                                <div class="flex justify-between text-[10px] font-bold text-blue-800 mb-1 px-1">
+                                    <span>標的一 <span id="pSub1Txt" class="font-mono">50</span>%</span>
+                                    <span>標的二 <span id="pSub2Txt" class="font-mono">50</span>%</span>
+                                </div>
+                                <input type="range" id="passiveSubSlider" min="10" max="90" step="5" value="50" class="w-full h-1 bg-blue-200 rounded-lg appearance-none cursor-pointer mini-slider text-blue-500">
+                            </div>
+
+                            <div class="flex justify-between items-end border-t border-blue-100/50 pt-2 mt-2">
+                                <span class="text-[10px] text-blue-600/70 font-medium">被動總本金 <span id="passivePrincipal" class="font-mono font-bold text-blue-600 text-sm ml-1">--</span></span>
+                                <span class="text-[10px] text-blue-600/70 font-medium">總定額 <span id="passiveMonthly" class="font-mono font-bold text-blue-600 text-sm ml-1">--</span></span>
                             </div>
                         </div>
 
+                        <!-- 🚀 主動衛星選單群 (雙標的) -->
                         <div class="bg-rose-50/50 p-3 rounded-xl border border-rose-100">
-                            <label class="block text-rose-800 font-bold mb-2 text-sm">🚀 主動/主題型衛星 (Satellite)</label>
+                            <label class="block text-rose-800 font-bold mb-2 text-sm">🚀 主動/主題型衛星 (Satellite Matrix)</label>
                             <select id="activeEtfSelect" class="w-full p-2 rounded-lg input-light text-sm font-medium text-slate-700 mb-2 bg-white">
-                                <option value="history_00881" selected>📡 00881 國泰台灣科技龍頭 (核心配置)</option>
+                                <option value="history_00881" selected>📡 00881 國泰台灣科技龍頭 (台灣核心)</option>
                                 <option value="history_00757">🚀 00757 統一FANG+ (美股巨頭)</option>
                                 <option value="history_00924">🇺🇸 00924 復華S&P500成長 (美股成長)</option>
                                 <option value="history_00830">🚀 00830 國泰費城半導體 (全球半導)</option>
@@ -215,9 +278,35 @@
                                 <option value="history_00941">🏭 00941 中信上游半導體 (半導體設備)</option>
                                 <option value="12">📈 理論平滑均值 (固定年化 12%)</option>
                             </select>
-                            <div class="flex justify-between items-end border-t border-rose-100/50 pt-2">
-                                <span class="text-[10px] text-rose-600/70 font-medium">配置本金 <span id="activePrincipal" class="font-mono font-bold text-rose-600 text-sm ml-1">--</span></span>
-                                <span class="text-[10px] text-rose-600/70 font-medium">定額 <span id="activeMonthly" class="font-mono font-bold text-rose-600 text-sm ml-1">--</span></span>
+                            
+                            <select id="activeEtfSelect2" class="w-full p-2 rounded-lg input-light text-sm font-medium text-slate-500 bg-white/70 focus:bg-white transition-colors">
+                                <option value="none" selected>🚫 -- (選填) 搭配第二檔主動標的 --</option>
+                                <option value="history_00881">📡 00881 國泰台灣科技龍頭 (台灣核心)</option>
+                                <option value="history_00757">🚀 00757 統一FANG+ (美股巨頭)</option>
+                                <option value="history_00924">🇺🇸 00924 復華S&P500成長 (美股成長)</option>
+                                <option value="history_00830">🚀 00830 國泰費城半導體 (全球半導)</option>
+                                <option value="history_00891">🔥 00891 中信關鍵半導體 (台灣半導)</option>
+                                <option value="history_00733">🌪️ 00733 富邦臺灣中小 (動能飆股)</option>
+                                <option value="history_00662">🌎 00662 富邦NASDAQ (美科技大盤)</option>
+                                <option value="history_00770">🦅 00770 國泰北美科技 (北美強勢)</option>
+                                <option value="history_00893">⚡ 00893 國泰智能電動車 (全球AI/EV)</option>
+                                <option value="history_00935">🧠 00935 野村臺灣新科技50 (創新科技)</option>
+                                <option value="history_00941">🏭 00941 中信上游半導體 (半導體設備)</option>
+                                <option value="12">📈 理論平滑均值 (固定年化 12%)</option>
+                            </select>
+
+                            <!-- 主動內部權重微調 -->
+                            <div id="activeSubBox" class="mt-3 bg-white/60 p-2 rounded-lg border border-rose-200/50 hidden">
+                                <div class="flex justify-between text-[10px] font-bold text-rose-800 mb-1 px-1">
+                                    <span>標的一 <span id="aSub1Txt" class="font-mono">50</span>%</span>
+                                    <span>標的二 <span id="aSub2Txt" class="font-mono">50</span>%</span>
+                                </div>
+                                <input type="range" id="activeSubSlider" min="10" max="90" step="5" value="50" class="w-full h-1 bg-rose-200 rounded-lg appearance-none cursor-pointer mini-slider text-rose-500">
+                            </div>
+
+                            <div class="flex justify-between items-end border-t border-rose-100/50 pt-2 mt-2">
+                                <span class="text-[10px] text-rose-600/70 font-medium">主動總本金 <span id="activePrincipal" class="font-mono font-bold text-rose-600 text-sm ml-1">--</span></span>
+                                <span class="text-[10px] text-rose-600/70 font-medium">總定額 <span id="activeMonthly" class="font-mono font-bold text-rose-600 text-sm ml-1">--</span></span>
                             </div>
                         </div>
                     </div>
@@ -294,7 +383,7 @@
                             </div>
                         </div>
 
-                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] lg:w-max max-w-none bg-white p-6 md:p-8 rounded-2xl text-center shadow-[0_20px_50px_rgba(225,29,72,0.25)] border-2 border-rose-400 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-300 transform scale-95 group-hover:scale-100 flex flex-col items-center">
+                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] lg:w-max max-w-none bg-white p-6 md:p-8 rounded-2xl text-center shadow-[0_20px_50px_rgba(225,29,72,0.25)] border-2 border-rose-400 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-300 transform scale-95 group-hover:scale-100 flex flex-col items-center z-50">
                             <h3 class="text-base md:text-lg font-black text-rose-700 mb-5 flex items-center tracking-widest whitespace-nowrap">
                                 <span class="animate-pulse mr-2 h-2 w-2 bg-rose-500 rounded-full"></span>
                                 STRESS TEST 壓力測試 (綜合投組基準)
@@ -332,23 +421,27 @@
                                         <p class="text-[10px] text-slate-500 mb-1">扣除通膨實質購買力</p>
                                         <span id="comboACRealPower_Base" class="text-sm md:text-base font-mono font-bold text-slate-800 truncate block tracking-tighter">--</span>
                                     </div>
-                                    <div>
+                                    <div class="pl-2 border-l border-orange-200">
                                         <p class="text-[10px] text-slate-500 mb-1">費用耗損(摩擦成本)</p>
                                         <span id="comboACFeeDrag_Base" class="text-sm md:text-base font-mono font-bold text-rose-500 truncate block tracking-tighter">--</span>
                                     </div>
                                 </div>
+                                <div class="absolute bottom-2 right-2 flex items-center text-[10px] text-orange-400/80">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg> Hover 放大
+                                </div>
                             </div>
-                            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-auto min-w-[110%] md:min-w-[120%] bg-white p-6 md:p-8 rounded-2xl text-center shadow-[0_20px_50px_rgba(249,115,22,0.25)] border-2 border-orange-400 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-300 transform scale-90 group-hover:scale-100 flex flex-col justify-center items-center">
+                            <div class="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] md:w-max max-w-none bg-white p-6 md:p-8 rounded-2xl text-center shadow-[0_20px_50px_rgba(249,115,22,0.25)] border-2 border-orange-400 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-300 transform scale-90 group-hover:scale-100 flex flex-col justify-center items-center">
                                 <div class="absolute top-0 right-0 bg-orange-500 text-white text-[10px] md:text-xs font-black px-4 py-1 rounded-bl-xl tracking-wider shadow-sm">MAX RETURN</div>
-                                <h3 class="text-base font-bold text-orange-700 mb-2 w-full">🔥 綜合策略 (單筆 A + 定額 C)</h3>
+                                <h3 class="text-base font-bold text-orange-700 mb-2 w-full whitespace-nowrap">🔥 綜合策略 (單筆 A + 定額 C)</h3>
                                 <div class="text-[clamp(1.75rem,3.5vw,2.75rem)] font-mono font-black text-orange-600 drop-shadow-md my-3 whitespace-nowrap tracking-tighter w-full px-2" id="comboACResult">--</div>
-                                <div class="text-sm md:text-base text-orange-600/80 mb-4 w-full whitespace-nowrap">名目總獲利: <span id="comboACProfit" class="font-mono font-bold text-orange-600 text-lg md:text-xl ml-1">--</span></div>
-                                <div class="self-stretch pt-4 border-t border-orange-200 bg-orange-50/50 -mx-6 md:-mx-8 -mb-6 md:-mb-8 p-6 rounded-b-xl mt-auto grid grid-cols-2 gap-4 text-left">
-                                    <div>
+                                <div class="text-sm md:text-base text-orange-600/80 mb-5 w-full whitespace-nowrap">名目總獲利: <span id="comboACProfit" class="font-mono font-bold text-orange-600 text-lg md:text-xl ml-1">--</span></div>
+                                <div class="self-stretch pt-4 border-t border-orange-200 bg-orange-50/50 -mx-6 md:-mx-8 -mb-6 md:-mb-8 p-6 rounded-b-xl mt-auto flex flex-col md:flex-row justify-around gap-4 text-center">
+                                    <div class="flex-1 min-w-max">
                                         <p class="text-sm text-slate-500 mb-1">扣除通膨實質購買力</p>
                                         <span id="comboACRealPower" class="text-[clamp(1.1rem,1.8vw,1.5rem)] font-mono font-bold text-slate-800 tracking-tight whitespace-nowrap">--</span>
                                     </div>
-                                    <div>
+                                    <div class="hidden md:block w-px bg-orange-200"></div>
+                                    <div class="flex-1 min-w-max">
                                         <p class="text-sm text-slate-500 mb-1">總摩擦成本(手續+內扣)</p>
                                         <span id="comboACFeeDrag" class="text-[clamp(1.1rem,1.8vw,1.5rem)] font-mono font-bold text-rose-500 tracking-tight whitespace-nowrap">--</span>
                                     </div>
@@ -367,23 +460,27 @@
                                         <p class="text-[10px] text-slate-500 mb-1">扣除通膨實質購買力</p>
                                         <span id="comboBCRealPower_Base" class="text-sm md:text-base font-mono font-bold text-slate-800 truncate block tracking-tighter">--</span>
                                     </div>
-                                    <div>
+                                    <div class="pl-2 border-l border-rose-200">
                                         <p class="text-[10px] text-slate-500 mb-1">費用耗損(摩擦成本)</p>
                                         <span id="comboBCFeeDrag_Base" class="text-sm md:text-base font-mono font-bold text-rose-500 truncate block tracking-tighter">--</span>
                                     </div>
                                 </div>
+                                <div class="absolute bottom-2 right-2 flex items-center text-[10px] text-rose-400/80">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg> Hover 放大
+                                </div>
                             </div>
-                            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-auto min-w-[110%] md:min-w-[120%] bg-white p-6 md:p-8 rounded-2xl text-center shadow-[0_20px_50px_rgba(225,29,72,0.25)] border-2 border-rose-400 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-300 transform scale-90 group-hover:scale-100 flex flex-col justify-center items-center">
+                            <div class="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] md:w-max max-w-none bg-white p-6 md:p-8 rounded-2xl text-center shadow-[0_20px_50px_rgba(225,29,72,0.25)] border-2 border-rose-400 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-300 transform scale-90 group-hover:scale-100 flex flex-col justify-center items-center">
                                 <div class="absolute top-0 right-0 bg-rose-500 text-white text-[10px] md:text-xs font-black px-4 py-1 rounded-bl-xl tracking-wider shadow-sm">DEFENSE PRO</div>
-                                <h3 class="text-base font-bold text-rose-700 mb-2 w-full">🛡️ 綜合策略 (分批 B + 定額 C)</h3>
-                                <div class="text-[clamp(1.75rem,3.5vw,2.75rem)] font-mono font-black text-rose-600 drop-shadow-md my-3 whitespace-nowrap tracking-tighter w-full px-2" id="comboBCResult">--</div>
-                                <div class="text-sm md:text-base text-rose-600/80 mb-4 w-full whitespace-nowrap">名目總獲利: <span id="comboBCProfit" class="font-mono font-bold text-rose-600 text-lg md:text-xl ml-1">--</span></div>
-                                <div class="self-stretch pt-4 border-t border-rose-200 bg-rose-50/50 -mx-6 md:-mx-8 -mb-6 md:-mb-8 p-6 rounded-b-xl mt-auto grid grid-cols-2 gap-4 text-left">
-                                    <div>
+                                <h3 class="text-base md:text-lg font-bold text-rose-700 mb-2 w-full whitespace-nowrap">🛡️ 綜合策略 (分批 B + 定額 C)</h3>
+                                <div class="text-[clamp(1.75rem,3.5vw,2.75rem)] font-mono font-black text-rose-600 drop-shadow-md my-3 whitespace-nowrap tracking-tighter px-4" id="comboBCResult">--</div>
+                                <div class="text-sm md:text-base text-rose-600/80 mb-5 whitespace-nowrap">名目總獲利: <span id="comboBCProfit" class="font-mono font-bold text-rose-600 text-lg md:text-xl ml-1">--</span></div>
+                                <div class="self-stretch pt-4 border-t border-rose-200 bg-rose-50/50 -mx-6 md:-mx-8 -mb-6 md:-mb-8 p-6 rounded-b-xl mt-auto flex flex-col md:flex-row justify-around gap-4 text-center">
+                                    <div class="flex-1 min-w-max">
                                         <p class="text-sm text-slate-500 mb-1">扣除通膨實質購買力</p>
                                         <span id="comboBCRealPower" class="text-[clamp(1.1rem,1.8vw,1.5rem)] font-mono font-bold text-slate-800 tracking-tight whitespace-nowrap">--</span>
                                     </div>
-                                    <div>
+                                    <div class="hidden md:block w-px bg-rose-200"></div>
+                                    <div class="flex-1 min-w-max">
                                         <p class="text-sm text-slate-500 mb-1">總摩擦成本(手續+內扣)</p>
                                         <span id="comboBCFeeDrag" class="text-[clamp(1.1rem,1.8vw,1.5rem)] font-mono font-bold text-rose-500 tracking-tight whitespace-nowrap">--</span>
                                     </div>
@@ -411,7 +508,7 @@
                     <thead class="bg-slate-100 text-slate-600 uppercase text-[11px] md:text-xs tracking-wider">
                         <tr>
                             <th scope="col" class="px-3 py-4 border-b border-slate-200 font-bold min-w-[120px]">
-                                年度<br><span class="text-[10px] text-slate-400 font-normal">當年報酬率(被動/主動)</span>
+                                年度<br><span class="text-[10px] text-slate-400 font-normal">當年加權報酬(被動/主動)</span>
                             </th>
                             <th scope="col" class="px-3 py-4 border-b border-slate-200 text-right font-bold bg-stone-50 text-stone-700 border-l border-stone-200">
                                 累計投入總額<br><span class="text-[10px] text-stone-500 font-normal">本金+歷年定額</span>
@@ -436,9 +533,9 @@
             </div>
 
             <div class="mt-6 text-xs text-slate-500 bg-slate-50 p-5 rounded-lg border border-slate-200 leading-relaxed">
-                <strong class="text-blue-600 block mb-2 text-sm">QUANTITATIVE ADVISORY // 雙核精算警語</strong>
-                <p>1. <strong>情境分析 (Scenario Analysis)：</strong> 上方「情境推演」控制項可切換『歷史樂觀』、『保守均值』與『尾部衰退風險』。請務必在不同情境下檢視您的防禦能力。</p>
-                <p class="mt-1">2. <strong>真實序列風險 (SORR)：</strong> 在「尾部風險」情境下，系統會將市場中最慘烈的大跌集中排列在您資產最大時發生。若在此情境下仍能安然度過，代表該資產配置比例極其穩健。</p>
+                <strong class="text-blue-600 block mb-2 text-sm">QUANTITATIVE ADVISORY // 四核矩陣精算警語</strong>
+                <p>1. <strong>多重資產融合 (Multi-Asset Blending)：</strong> 您現在可以同時指定多達 4 檔不同的標的。系統會透過您設定的權重，同步計算混合後的「幾何平均報酬」與「加權內扣費用率」。</p>
+                <p class="mt-1">2. <strong>情境分析 (Scenario Analysis)：</strong> 上方「情境推演」控制項可切換『歷史樂觀』、『保守均值』與『尾部衰退風險』。請務必在不同情境下檢視您的防禦能力。</p>
             </div>
         </div>
     </div>
@@ -460,12 +557,25 @@
         const scenarioRadios = document.querySelectorAll('input[name="scenario"]');
         const scenarioDesc = document.getElementById('scenarioDesc');
 
-        // 雙選單與比例滑桿
-        const passiveEtfSelect = document.getElementById('passiveEtfSelect');
-        const activeEtfSelect = document.getElementById('activeEtfSelect');
+        // 雙選單與比例滑桿 (四核擴充)
         const allocationSlider = document.getElementById('allocationSlider');
         const passiveRatioText = document.getElementById('passiveRatioText');
         const activeRatioText = document.getElementById('activeRatioText');
+        
+        const passiveEtfSelect = document.getElementById('passiveEtfSelect');
+        const passiveEtfSelect2 = document.getElementById('passiveEtfSelect2');
+        const passiveSubBox = document.getElementById('passiveSubBox');
+        const passiveSubSlider = document.getElementById('passiveSubSlider');
+        const pSub1Txt = document.getElementById('pSub1Txt');
+        const pSub2Txt = document.getElementById('pSub2Txt');
+        
+        const activeEtfSelect = document.getElementById('activeEtfSelect');
+        const activeEtfSelect2 = document.getElementById('activeEtfSelect2');
+        const activeSubBox = document.getElementById('activeSubBox');
+        const activeSubSlider = document.getElementById('activeSubSlider');
+        const aSub1Txt = document.getElementById('aSub1Txt');
+        const aSub2Txt = document.getElementById('aSub2Txt');
+
         const passivePrincipal = document.getElementById('passivePrincipal');
         const activePrincipal = document.getElementById('activePrincipal');
         const passiveMonthly = document.getElementById('passiveMonthly');
@@ -491,7 +601,7 @@
 
         // 10年期歷史含息數據 (2014-2023 基準/指數回溯)
         const historyData = {
-            // 被動核心 (10檔)
+            // 被動核心
             'history_0050': [0.175, -0.064, 0.201, 0.219, -0.043, 0.334, 0.312, 0.211, -0.208, 0.274],
             'history_006208': [0.178, -0.062, 0.204, 0.222, -0.041, 0.338, 0.316, 0.214, -0.206, 0.277],
             'history_00692': [0.165, -0.055, 0.195, 0.210, -0.035, 0.320, 0.305, 0.215, -0.190, 0.285],
@@ -502,7 +612,7 @@
             'history_00929': [0.135, -0.041, 0.172, 0.183, -0.035, 0.254, 0.184, 0.253, -0.155, 0.481],
             'history_00915': [0.120, -0.015, 0.155, 0.140, -0.020, 0.240, 0.160, 0.300, -0.080, 0.470],
             'history_00940': [0.100, -0.025, 0.140, 0.150, -0.030, 0.200, 0.090, 0.210, -0.110, 0.430],
-            // 主動/主題衛星 (11檔)
+            // 主動/主題衛星
             'history_00757': [0.254, 0.182, 0.125, 0.501, 0.023, 0.452, 0.854, 0.175, -0.402, 0.953],
             'history_00924': [0.149, 0.055, 0.051, 0.240, -0.015, 0.315, 0.313, 0.244, -0.294, 0.301],
             'history_00830': [0.285, 0.055, 0.385, 0.415, -0.085, 0.515, 0.425, 0.315, -0.355, 0.655],
@@ -527,8 +637,10 @@
 
         const formatter = new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'TWD', maximumFractionDigits: 0 });
 
-        // 取得依據情境動態調整後的報酬率陣列 (核心計量引擎)
+        // 取得依據情境動態調整後的報酬率陣列 (單一標的)
         function getAdjustedRateArray(mode, scenario) {
+            if (mode === 'none') return Array(10).fill(0); // 處理未選擇標的
+            
             if (!mode.startsWith('history_')) {
                 let rate = parseFloat(mode) / 100;
                 if (scenario === 'bear') return Array(10).fill(rate - 0.04);
@@ -539,23 +651,61 @@
             let rawArray = [...historyData[mode]];
 
             if (scenario === 'optimistic') {
-                // 黃金十年：原封不動輸出歷史軌跡
                 return rawArray;
             } else if (scenario === 'base') {
-                // 溫和基準：計算幾何均值，並打 75 折抹平所有波動
                 let cagrMultiplier = 1;
                 rawArray.forEach(r => cagrMultiplier *= (1 + r));
-                let cagr = Math.pow(cagrMultiplier, 1/10) - 1;
-                let conservativeCagr = cagr * 0.75; 
+                let conservativeCagr = (Math.pow(cagrMultiplier, 1/10) - 1) * 0.75; 
                 return Array(10).fill(conservativeCagr);
             } else if (scenario === 'bear') {
-                // 尾部風險 (SORR)：以 0050 為基準，找出最慘烈的年份，並將這些災難年全部集中排到投資後期
                 let benchmarkArray = historyData['history_0050'];
                 let indices = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-                indices.sort((a, b) => benchmarkArray[b] - benchmarkArray[a]); // 降冪排序 (好 -> 壞)
-                // 外加 2% 通縮懲罰
+                indices.sort((a, b) => benchmarkArray[b] - benchmarkArray[a]);
                 return indices.map(idx => rawArray[idx] - 0.02);
             }
+        }
+
+        // 取得混合兩檔 ETF 的陣列
+        function getBlendedRateArray(mode1, mode2, subRatio1, scenario) {
+            let rates1 = getAdjustedRateArray(mode1, scenario);
+            let rates2 = getAdjustedRateArray(mode2, scenario);
+            let weight1 = subRatio1 / 100;
+            let weight2 = 1 - weight1;
+            
+            return rates1.map((r, i) => r * weight1 + rates2[i] * weight2);
+        }
+
+        // 自動同步與精算加權 TER
+        function syncTER() {
+            let pMode1 = passiveEtfSelect.value;
+            let pMode2 = passiveEtfSelect2.value;
+            let pSub1 = pMode2 === 'none' ? 100 : parseInt(passiveSubSlider.value);
+            let pSub2 = pMode2 === 'none' ? 0 : 100 - pSub1;
+
+            let aMode1 = activeEtfSelect.value;
+            let aMode2 = activeEtfSelect2.value;
+            let aSub1 = aMode2 === 'none' ? 100 : parseInt(activeSubSlider.value);
+            let aSub2 = aMode2 === 'none' ? 0 : 100 - aSub1;
+
+            // UI 更新
+            passiveSubBox.style.display = pMode2 === 'none' ? 'none' : 'block';
+            pSub1Txt.textContent = pSub1;
+            pSub2Txt.textContent = pSub2;
+            
+            activeSubBox.style.display = aMode2 === 'none' ? 'none' : 'block';
+            aSub1Txt.textContent = aSub1;
+            aSub2Txt.textContent = aSub2;
+
+            // TER 計算
+            let terP1 = etfTerData[pMode1] || 0;
+            let terP2 = pMode2 === 'none' ? 0 : (etfTerData[pMode2] || 0);
+            passiveMgmtFeeInput.value = ((terP1 * pSub1 / 100) + (terP2 * pSub2 / 100)).toFixed(2);
+
+            let terA1 = etfTerData[aMode1] || 0;
+            let terA2 = aMode2 === 'none' ? 0 : (etfTerData[aMode2] || 0);
+            activeMgmtFeeInput.value = ((terA1 * aSub1 / 100) + (terA2 * aSub2 / 100)).toFixed(2);
+
+            calculate();
         }
 
         function calculate() {
@@ -568,14 +718,12 @@
             const passiveMgmtFee = parseFloat(passiveMgmtFeeInput.value) / 100 || 0;
             const activeMgmtFee = parseFloat(activeMgmtFeeInput.value) / 100 || 0;
 
-            const passiveMode = passiveEtfSelect.value;
-            const activeMode = activeEtfSelect.value;
             const passiveRatio = parseInt(allocationSlider.value);
             const activeRatio = 100 - passiveRatio;
             
             yearsLabel.textContent = years;
 
-            // --- 偵測目前選擇的總經情境 ---
+            // --- 總經情境設定 ---
             let selectedScenario = 'optimistic';
             scenarioRadios.forEach(el => { if(el.checked) selectedScenario = el.value; });
 
@@ -587,9 +735,16 @@
                 scenarioDesc.innerHTML = '註：終極壓力測試！強制將大盤最慘的股災集中在投資後期發生，外加 2% 通縮懲罰。<strong class="text-rose-600">用以檢視資金規模最大時遭遇崩盤的防禦底氣 (SORR風險)</strong>。';
             }
 
-            // 取得對應情境的 10 年期陣列
-            const passiveRates = getAdjustedRateArray(passiveMode, selectedScenario);
-            const activeRates = getAdjustedRateArray(activeMode, selectedScenario);
+            // 取得對應情境與內部權重混合後的 10 年期陣列
+            let pMode1 = passiveEtfSelect.value;
+            let pMode2 = passiveEtfSelect2.value;
+            let pSub1 = pMode2 === 'none' ? 100 : parseInt(passiveSubSlider.value);
+            const passiveRates = getBlendedRateArray(pMode1, pMode2, pSub1, selectedScenario);
+
+            let aMode1 = activeEtfSelect.value;
+            let aMode2 = activeEtfSelect2.value;
+            let aSub1 = aMode2 === 'none' ? 100 : parseInt(activeSubSlider.value);
+            const activeRates = getBlendedRateArray(aMode1, aMode2, aSub1, selectedScenario);
 
             const principalP = principal * (passiveRatio / 100);
             const principalA = principal * (activeRatio / 100);
@@ -608,7 +763,7 @@
             passiveMonthly.textContent = formatter.format(regMonthP);
             activeMonthly.textContent = formatter.format(regMonthA);
 
-            // 綜合績效指標計算 (採用動態情境陣列)
+            // 綜合績效指標計算 (加權混和陣列)
             let combinedNetRates = [];
             for (let i = 0; i < 10; i++) {
                 let rP = passiveRates[i] - passiveMgmtFee;
@@ -645,12 +800,6 @@
             let grossCagr = Math.pow(grossCagrMultiplier, 1/10) - 1;
             cagrValue.textContent = (grossCagr * 100).toFixed(2) + '%';
             document.getElementById('cagrValue_Base').textContent = (grossCagr * 100).toFixed(2) + '%';
-
-            if (passiveMode.startsWith('history_') || activeMode.startsWith('history_')) {
-                riskWarningPanel.classList.remove('hidden');
-            } else {
-                riskWarningPanel.classList.add('hidden');
-            }
 
             let labels = [];
             let comboACData = [], comboBCData = [];
@@ -782,14 +931,81 @@
             });
         }
 
+        // --- 自動同步與精算加權 TER (修復雙重宣告問題) ---
         function syncTER() {
-            if (etfTerData[passiveEtfSelect.value]) passiveMgmtFeeInput.value = etfTerData[passiveEtfSelect.value];
-            if (etfTerData[activeEtfSelect.value]) activeMgmtFeeInput.value = etfTerData[activeEtfSelect.value];
+            let pMode1 = passiveEtfSelect.value;
+            let pMode2 = passiveEtfSelect2.value;
+            let pSub1 = pMode2 === 'none' ? 100 : parseInt(passiveSubSlider.value);
+            let pSub2 = pMode2 === 'none' ? 0 : 100 - pSub1;
+
+            let aMode1 = activeEtfSelect.value;
+            let aMode2 = activeEtfSelect2.value;
+            let aSub1 = aMode2 === 'none' ? 100 : parseInt(activeSubSlider.value);
+            let aSub2 = aMode2 === 'none' ? 0 : 100 - aSub1;
+
+            // UI 更新
+            passiveSubBox.style.display = pMode2 === 'none' ? 'none' : 'block';
+            pSub1Txt.textContent = pSub1;
+            pSub2Txt.textContent = pSub2;
+            
+            activeSubBox.style.display = aMode2 === 'none' ? 'none' : 'block';
+            aSub1Txt.textContent = aSub1;
+            aSub2Txt.textContent = aSub2;
+
+            // TER 計算
+            let terP1 = etfTerData[pMode1] || 0;
+            let terP2 = pMode2 === 'none' ? 0 : (etfTerData[pMode2] || 0);
+            passiveMgmtFeeInput.value = ((terP1 * pSub1 / 100) + (terP2 * pSub2 / 100)).toFixed(2);
+
+            let terA1 = etfTerData[aMode1] || 0;
+            let terA2 = aMode2 === 'none' ? 0 : (etfTerData[aMode2] || 0);
+            activeMgmtFeeInput.value = ((terA1 * aSub1 / 100) + (terA2 * aSub2 / 100)).toFixed(2);
+
             calculate();
         }
 
-        [principalInput, yearsInput, regularMonthlyInput, inflationRateInput, allocationSlider, tradingFeeInput, passiveMgmtFeeInput, activeMgmtFeeInput].forEach(el => el && el.addEventListener('input', calculate));
-        [passiveEtfSelect, activeEtfSelect].forEach(el => el && el.addEventListener('change', syncTER));
+        // --- AI 智能推薦組合邏輯 ---
+        const aiPresets = {
+            'balanced': {
+                passiveRatio: 70,
+                pMode1: 'history_00878', pMode2: 'history_00713', pSub1: 50,
+                aMode1: 'history_00881', aMode2: 'none', aSub1: 100
+            },
+            'tech_growth': {
+                passiveRatio: 50,
+                pMode1: 'history_006208', pMode2: 'none', pSub1: 100,
+                aMode1: 'history_00757', aMode2: 'history_00924', aSub1: 50
+            },
+            'aggressive': {
+                passiveRatio: 30,
+                pMode1: 'history_00915', pMode2: 'none', pSub1: 100,
+                aMode1: 'history_00733', aMode2: 'history_00830', aSub1: 60
+            }
+        };
+
+        function applyAIPreset(presetKey) {
+            const p = aiPresets[presetKey];
+            if (!p) return;
+
+            allocationSlider.value = p.passiveRatio;
+            
+            passiveEtfSelect.value = p.pMode1;
+            passiveEtfSelect2.value = p.pMode2;
+            passiveSubSlider.value = p.pSub1;
+
+            activeEtfSelect.value = p.aMode1;
+            activeEtfSelect2.value = p.aMode2;
+            activeSubSlider.value = p.aSub1;
+
+            syncTER();
+        }
+
+        document.getElementById('btnPresetBalanced').addEventListener('click', () => applyAIPreset('balanced'));
+        document.getElementById('btnPresetTech').addEventListener('click', () => applyAIPreset('tech_growth'));
+        document.getElementById('btnPresetAggressive').addEventListener('click', () => applyAIPreset('aggressive'));
+
+        [principalInput, yearsInput, regularMonthlyInput, inflationRateInput, allocationSlider, tradingFeeInput, passiveSubSlider, activeSubSlider].forEach(el => el && el.addEventListener('input', syncTER));
+        [passiveEtfSelect, passiveEtfSelect2, activeEtfSelect, activeEtfSelect2].forEach(el => el && el.addEventListener('change', syncTER));
         scenarioRadios.forEach(el => el && el.addEventListener('change', calculate));
         
         syncTER();
