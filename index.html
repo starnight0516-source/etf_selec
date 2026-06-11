@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ETF 長期投資策略與風險試算 (晨星白科技版)</title>
+    <title>ETF 長期投資策略與風險試算 (雙核精算版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -29,27 +29,26 @@
             animation: gradientBG 20s ease infinite;
             color: #44403c;
             min-height: 100vh;
-            /* 魔法濾鏡：加上一層底片文青色調，讓所有原生冷色系變得溫潤 */
             filter: sepia(0.15) saturate(0.85) contrast(0.95);
         }
 
-        /* 覆寫 Tailwind 的 mono 字體，強制使用 JetBrains Mono */
+        /* 覆寫 Tailwind 的 mono 字體 */
         .font-mono {
             font-family: var(--font-mono) !important;
             letter-spacing: -0.02em;
         }
 
-        /* 導入全局等比例放大技術 (Global Typography Scaling) */
+        /* 導入全局等比例放大技術 */
         html {
-            font-size: 18px; /* 手機版基礎字體從 16px 放大至 18px (放大 12.5%) */
+            font-size: 18px; 
         }
         @media (min-width: 768px) {
             html {
-                font-size: 20px; /* 桌機版基礎字體放大至 20px (放大 25%) */
+                font-size: 20px; 
             }
         }
 
-        /* 隱藏原生卷軸，美化捲動體驗 */
+        /* 隱藏原生卷軸 */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #FDFCF8; }
         ::-webkit-scrollbar-thumb { background: #d6d3d1; border-radius: 4px; }
@@ -75,7 +74,6 @@
             outline: none;
         }
 
-        /* 漸層文字 (大地色系) */
         .text-gradient-earth {
             background: linear-gradient(to right, #78716c, #a8a29e);
             -webkit-background-clip: text;
@@ -84,261 +82,311 @@
     </style>
 </head>
 <body class="p-4 md:p-8">
-    <div class="max-w-6xl mx-auto glass-panel rounded-2xl overflow-hidden border border-stone-200">
+    <div class="max-w-7xl mx-auto glass-panel rounded-2xl overflow-hidden border border-stone-200">
         
-        <!-- 柔和頭部 -->
         <div class="relative bg-[#FDFCF8]/60 border-b border-stone-200 p-8 text-center overflow-hidden">
             <h1 class="text-3xl md:text-4xl font-black tracking-wider text-gradient-earth relative z-10" style="font-family: var(--font-sans);">
                 QUANT TERMINAL: ETF 財富精算引擎
             </h1>
             <p class="mt-3 text-stone-500 font-medium tracking-widest relative z-10 text-sm md:text-base">
-                量化回測 / 風險壓力測試 / 複合策略分析
+                雙核投組回測 / 風險壓力測試 / 情境推演分析
             </p>
         </div>
 
         <div class="p-6 md:p-8">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
                 
-                <!-- 參數設定區 (佔 5 欄) -->
-                <div class="lg:col-span-5 bg-slate-50/80 p-6 rounded-xl border border-slate-200 shadow-sm">
-                    <h2 class="text-xl font-bold mb-6 text-slate-800 border-b border-slate-200 pb-3 flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
-                        戰略參數輸入
+                <div class="lg:col-span-5 bg-slate-50/80 p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col space-y-5">
+                    <h2 class="text-xl font-bold text-slate-800 border-b border-slate-200 pb-3 flex items-center justify-between">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                            戰略參數輸入
+                        </div>
                     </h2>
                     
-                    <div class="mb-5">
+                    <div>
                         <label class="block text-slate-600 font-medium mb-2 text-sm">單筆/分批 總本金 (TWD)</label>
                         <input type="number" id="principal" value="600000" step="10000" min="0" class="w-full p-3 rounded-lg input-light text-right font-mono text-lg font-bold text-slate-800">
                     </div>
 
-                    <div class="mb-5">
+                    <div>
                         <label class="block text-slate-600 font-medium mb-2 text-sm">獨立定期定額 每月扣款 (TWD)</label>
                         <input type="number" id="regularMonthly" value="10000" step="1000" min="0" class="w-full p-3 rounded-lg input-light text-right font-mono text-lg font-bold text-purple-600">
                     </div>
 
-                    <div class="mb-5">
+                    <div>
                         <label class="block text-slate-600 font-medium mb-2 text-sm">預估通膨率 (%) <span class="text-xs text-slate-400 font-normal">實質購買力折算基準</span></label>
                         <input type="number" id="inflationRate" value="2.0" step="0.1" class="w-full p-3 rounded-lg input-light text-right font-mono text-rose-500 font-bold">
                     </div>
 
-                    <div class="mb-6">
-                        <label class="block text-slate-600 font-medium mb-2 text-sm">標的與模型選擇 (Algorithm)</label>
-                        <select id="etfSelect" class="w-full p-3 rounded-lg input-light text-sm font-medium text-slate-700">
-                            <optgroup label="📊 歷史回測矩陣 (10年期真實走勢)" class="bg-slate-50">
-                                <option value="history_0050" selected>👑 0050 元大台灣50 (大盤市值型)</option>
-                                <option value="history_006208">👑 006208 富邦台50 (低內扣優化)</option>
-                                <option value="history_0056">🛡️ 0056 元大高股息 (傳統高息型)</option>
-                                <option value="history_00878">🛡️ 00878 國泰永續高股息 (ESG防禦型)</option>
-                                <option value="history_00713">🛡️ 00713 元大台灣高息低波 (Smart Beta)</option>
-                                <option value="history_00757">🚀 00757 統一FANG+ (科技極端爆發)</option>
-                            </optgroup>
-                            <optgroup label="📈 理論平滑預測" class="bg-white">
-                                <option value="9">固定年化 9% (大盤均值)</option>
-                                <option value="11">固定年化 11% (科技均值)</option>
-                                <option value="6">固定年化 6% (保守高息)</option>
-                            </optgroup>
-                        </select>
+                    <div class="border-t border-slate-200 pt-5 mt-2 bg-slate-100/50 -mx-6 px-6 pb-4">
+                        <label class="block text-slate-800 font-bold mb-3 flex items-center">
+                            <svg class="w-4 h-4 mr-1 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            投資摩擦成本設定 (Friction Costs)
+                        </label>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-slate-600 font-medium mb-1 text-[11px]">買進手續費(%)</label>
+                                <input type="number" id="tradingFee" value="0.05" step="0.01" min="0" class="w-full p-2 rounded-lg input-light text-right font-mono text-sm text-slate-700">
+                            </div>
+                            <div class="relative">
+                                <label class="block text-blue-700 font-medium mb-1 text-[11px]">被動總費用率(TER)</label>
+                                <input type="number" id="passiveMgmtFee" value="0.43" step="0.01" min="0" class="w-full p-2 rounded-lg input-light text-right font-mono text-sm text-blue-700 pr-8">
+                            </div>
+                            <div class="relative">
+                                <label class="block text-rose-700 font-medium mb-1 text-[11px]">主動總費用率(TER)</label>
+                                <input type="number" id="activeMgmtFee" value="0.45" step="0.01" min="0" class="w-full p-2 rounded-lg input-light text-right font-mono text-sm text-rose-700 pr-8">
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="mb-2">
+                    <!-- 總體經濟情境預測 (NEW) -->
+                    <div class="border-t border-slate-200 pt-5 mt-0 bg-stone-50/80 -mx-6 px-6 pb-5">
+                        <label class="block text-slate-800 font-bold mb-3 flex items-center">
+                            <svg class="w-4 h-4 mr-1 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
+                            總體經濟情境推演 (Macro Scenarios)
+                        </label>
+                        <div class="grid grid-cols-3 gap-2 bg-stone-200/60 p-1.5 rounded-xl">
+                            <label class="cursor-pointer relative">
+                                <input type="radio" name="scenario" value="optimistic" class="peer sr-only" checked>
+                                <div class="text-center py-2.5 rounded-lg text-[11px] md:text-xs font-bold text-stone-500 peer-checked:bg-white peer-checked:text-orange-600 peer-checked:shadow-sm transition-all border border-transparent peer-checked:border-orange-100">🔥 黃金十年</div>
+                            </label>
+                            <label class="cursor-pointer relative">
+                                <input type="radio" name="scenario" value="base" class="peer sr-only">
+                                <div class="text-center py-2.5 rounded-lg text-[11px] md:text-xs font-bold text-stone-500 peer-checked:bg-white peer-checked:text-blue-600 peer-checked:shadow-sm transition-all border border-transparent peer-checked:border-blue-100">⚖️ 溫和基準</div>
+                            </label>
+                            <label class="cursor-pointer relative">
+                                <input type="radio" name="scenario" value="bear" class="peer sr-only">
+                                <div class="text-center py-2.5 rounded-lg text-[11px] md:text-xs font-bold text-stone-500 peer-checked:bg-white peer-checked:text-rose-600 peer-checked:shadow-sm transition-all border border-transparent peer-checked:border-rose-100">❄️ 尾部風險</div>
+                            </label>
+                        </div>
+                        <p id="scenarioDesc" class="text-[10px] md:text-[11px] text-slate-500 mt-2.5 leading-relaxed">
+                            註：完全重現 2014-2023 歷史真實順序。保留量化寬鬆與科技爆發紅利，<strong class="text-orange-600">適合樂觀預期</strong>。
+                        </p>
+                    </div>
+
+                    <div class="border-t border-slate-200 pt-5 mt-0">
+                        <div class="flex items-center justify-between mb-3">
+                            <label class="block text-slate-800 font-bold">投資組合配置 (Portfolio Config)</label>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm font-bold mb-2">
+                                <span class="text-blue-600">🛡️ 被動 <span id="passiveRatioText" class="font-mono text-lg">50</span>%</span>
+                                <span class="text-rose-500"><span id="activeRatioText" class="font-mono text-lg">50</span>% 主動 🚀</span>
+                            </div>
+                            <input type="range" id="allocationSlider" min="0" max="100" step="5" value="50" class="w-full h-2 bg-gradient-to-r from-blue-500 to-rose-400 rounded-lg appearance-none cursor-pointer">
+                        </div>
+
+                        <div class="bg-blue-50/50 p-3 rounded-xl border border-blue-100 mb-3">
+                            <label class="block text-blue-800 font-bold mb-2 text-sm">🛡️ 被動型核心 (Core)</label>
+                            <select id="passiveEtfSelect" class="w-full p-2 rounded-lg input-light text-sm font-medium text-slate-700 mb-2 bg-white">
+                                <option value="history_006208" selected>👑 006208 富邦台50 (低內扣優化)</option>
+                                <option value="history_0050">👑 0050 台灣50 (大盤市值型)</option>
+                                <option value="history_00692">🌱 00692 富邦公司治理 (ESG大盤)</option>
+                                <option value="history_00878">🛡️ 00878 國泰永續高股息 (國民防禦)</option>
+                                <option value="history_00713">🛡️ 00713 元大高息低波 (極致抗跌)</option>
+                                <option value="history_0056">💰 0056 元大高股息 (老牌高息)</option>
+                                <option value="history_00919">💰 00919 群益台灣精選高息 (高配息率)</option>
+                                <option value="history_00929">💻 00929 復華台灣科技優息 (科技月配)</option>
+                                <option value="history_00915">📈 00915 凱基優選高股息30 (動能高息)</option>
+                                <option value="history_00940">🐋 00940 元大台灣價值高息 (價值投資)</option>
+                                <option value="9">📈 理論平滑均值 (固定年化 9%)</option>
+                            </select>
+                            <div class="flex justify-between items-end border-t border-blue-100/50 pt-2">
+                                <span class="text-[10px] text-blue-600/70 font-medium">配置本金 <span id="passivePrincipal" class="font-mono font-bold text-blue-600 text-sm ml-1">--</span></span>
+                                <span class="text-[10px] text-blue-600/70 font-medium">定額 <span id="passiveMonthly" class="font-mono font-bold text-blue-600 text-sm ml-1">--</span></span>
+                            </div>
+                        </div>
+
+                        <div class="bg-rose-50/50 p-3 rounded-xl border border-rose-100">
+                            <label class="block text-rose-800 font-bold mb-2 text-sm">🚀 主動/主題型衛星 (Satellite)</label>
+                            <select id="activeEtfSelect" class="w-full p-2 rounded-lg input-light text-sm font-medium text-slate-700 mb-2 bg-white">
+                                <option value="history_00881" selected>📡 00881 國泰台灣科技龍頭 (核心配置)</option>
+                                <option value="history_00757">🚀 00757 統一FANG+ (美股巨頭)</option>
+                                <option value="history_00924">🇺🇸 00924 復華S&P500成長 (美股成長)</option>
+                                <option value="history_00830">🚀 00830 國泰費城半導體 (全球半導)</option>
+                                <option value="history_00891">🔥 00891 中信關鍵半導體 (台灣半導)</option>
+                                <option value="history_00733">🌪️ 00733 富邦臺灣中小 (動能飆股)</option>
+                                <option value="history_00662">🌎 00662 富邦NASDAQ (美科技大盤)</option>
+                                <option value="history_00770">🦅 00770 國泰北美科技 (北美強勢)</option>
+                                <option value="history_00893">⚡ 00893 國泰智能電動車 (全球AI/EV)</option>
+                                <option value="history_00935">🧠 00935 野村臺灣新科技50 (創新科技)</option>
+                                <option value="history_00941">🏭 00941 中信上游半導體 (半導體設備)</option>
+                                <option value="12">📈 理論平滑均值 (固定年化 12%)</option>
+                            </select>
+                            <div class="flex justify-between items-end border-t border-rose-100/50 pt-2">
+                                <span class="text-[10px] text-rose-600/70 font-medium">配置本金 <span id="activePrincipal" class="font-mono font-bold text-rose-600 text-sm ml-1">--</span></span>
+                                <span class="text-[10px] text-rose-600/70 font-medium">定額 <span id="activeMonthly" class="font-mono font-bold text-rose-600 text-sm ml-1">--</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-200 pt-5 mt-auto">
                         <label class="block text-slate-600 font-medium mb-2 text-sm">投資年限 (Horizon)</label>
                         <input type="range" id="years" min="1" max="20" value="10" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
                         <div class="text-center mt-3 font-black text-blue-600 text-2xl tracking-widest"><span id="yearsLabel" class="font-mono">10</span> <span class="text-sm font-normal text-slate-500">YEARS</span></div>
                     </div>
                 </div>
 
-                <!-- 策略比較結果與風險指標 (佔 7 欄) -->
                 <div class="lg:col-span-7 flex flex-col space-y-5">
                     
-                    <!-- 風險指標警告區 (Hover 彈出式設計) -->
-                    <div id="riskWarningPanel" class="relative w-full group cursor-pointer z-20 hover:z-50 hidden">
-                        <!-- 1. 預設排版 (Base State) -->
+                    <div class="bg-amber-50/40 border border-amber-200/60 p-5 rounded-2xl shadow-sm">
+                        <h3 class="text-sm font-black text-amber-800 mb-4 flex items-center tracking-widest">
+                            <svg class="w-4 h-4 mr-1.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                            PORTFOLIO OVERVIEW 投組綜合績效看板
+                        </h3>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+                            <div class="bg-white p-3 md:p-4 rounded-xl border border-stone-200 shadow-xs">
+                                <span class="text-slate-500 text-[10px] md:text-xs font-semibold block mb-1">累積投資金額</span>
+                                <span id="portfolioInvested" class="font-mono font-black text-slate-800 text-base md:text-lg">--</span>
+                            </div>
+                            <div class="bg-white p-3 md:p-4 rounded-xl border border-stone-200 shadow-xs">
+                                <span class="text-slate-500 text-[10px] md:text-xs font-semibold block mb-1">預估資產總額</span>
+                                <span id="portfolioValue" class="font-mono font-black text-amber-700 text-base md:text-lg">--</span>
+                            </div>
+                            <div class="bg-white p-3 md:p-4 rounded-xl border border-stone-200 shadow-xs">
+                                <span class="text-blue-700 text-[10px] md:text-xs font-semibold block mb-1">實質年化報酬 (CAGR)</span>
+                                <span id="portfolioCagr" class="font-mono font-black text-blue-600 text-base md:text-lg">--</span>
+                            </div>
+                            <div class="bg-white p-3 md:p-4 rounded-xl border border-stone-200 shadow-xs">
+                                <span class="text-purple-700 text-[10px] md:text-xs font-semibold block mb-1">年化波動率 (風險)</span>
+                                <span id="portfolioVolatility" class="font-mono font-black text-purple-600 text-base md:text-lg">--</span>
+                            </div>
+                            <div class="bg-white p-3 md:p-4 rounded-xl border border-stone-200 shadow-xs">
+                                <span class="text-emerald-700 text-[10px] md:text-xs font-semibold block mb-1">總報酬率 (ROI)</span>
+                                <span id="portfolioTotalReturn" class="font-mono font-black text-emerald-600 text-base md:text-lg">--</span>
+                            </div>
+                            <div class="bg-white p-3 md:p-4 rounded-xl border border-stone-200 shadow-xs">
+                                <span class="text-rose-700 text-[10px] md:text-xs font-semibold block mb-1">總摩擦費用耗損</span>
+                                <span id="portfolioFeeDrag" class="font-mono font-black text-rose-500 text-base md:text-lg">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="riskWarningPanel" class="relative w-full group cursor-pointer z-20 hover:z-50">
                         <div class="bg-rose-50 border border-rose-200 p-4 md:p-5 rounded-xl shadow-sm transition-all duration-300 group-hover:opacity-0 flex flex-col relative overflow-hidden h-full">
                             <div class="absolute top-0 left-0 w-1 h-full bg-rose-500"></div>
                             <h3 class="text-sm font-black text-rose-700 mb-3 flex items-center tracking-widest pl-2">
                                 <span class="animate-pulse mr-2 h-2 w-2 bg-rose-500 rounded-full"></span>
-                                STRESS TEST 壓力測試
+                                STRESS TEST 壓力測試 (綜合投組基準)
                             </h3>
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 pl-2">
                                 <div class="bg-white/80 p-2 md:p-3 rounded-lg border border-rose-100 shadow-sm overflow-hidden">
-                                    <span class="text-slate-500 text-[10px] md:text-[11px] font-medium mb-1 block truncate">最大跌幅</span>
+                                    <span class="text-slate-500 text-[10px] md:text-[11px] font-medium mb-1 block truncate">單年最大跌幅</span>
                                     <span id="mddPercent_Base" class="font-mono font-bold text-rose-600 text-sm md:text-base truncate block tracking-tighter">--</span>
                                 </div>
                                 <div class="bg-white/80 p-2 md:p-3 rounded-lg border border-rose-100 shadow-sm overflow-hidden">
-                                    <span class="text-slate-500 text-[10px] md:text-[11px] font-medium mb-1 block truncate">極端虧損</span>
+                                    <span class="text-slate-500 text-[10px] md:text-[11px] font-medium mb-1 block truncate">極端虧損預估</span>
                                     <span id="mddAmount_Base" class="font-mono font-bold text-rose-600 text-sm md:text-base truncate block tracking-tighter">--</span>
                                 </div>
                                 <div class="bg-white/80 p-2 md:p-3 rounded-lg border border-rose-100 shadow-sm overflow-hidden">
-                                    <span class="text-slate-500 text-[10px] md:text-[11px] font-medium mb-1 block truncate">歷史勝率</span>
+                                    <span class="text-slate-500 text-[10px] md:text-[11px] font-medium mb-1 block truncate">10年期勝率</span>
                                     <span id="winRate_Base" class="font-mono font-bold text-emerald-600 text-sm md:text-base truncate block tracking-tighter">--</span>
                                 </div>
                                 <div class="bg-white/80 p-2 md:p-3 rounded-lg border border-rose-100 shadow-sm overflow-hidden">
-                                    <span class="text-slate-500 text-[10px] md:text-[11px] font-medium mb-1 block truncate">CAGR</span>
+                                    <span class="text-slate-500 text-[10px] md:text-[11px] font-medium mb-1 block truncate">歷史 CAGR</span>
                                     <span id="cagrValue_Base" class="font-mono font-bold text-blue-600 text-sm md:text-base truncate block tracking-tighter">--</span>
                                 </div>
                             </div>
-                            <!-- UI 提示 -->
                             <div class="absolute top-4 right-4 flex items-center text-[10px] text-rose-400/80 bg-rose-100/50 px-2 py-1 rounded-full">
-                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg> Hover 放大
+                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg> Hover 放大
                             </div>
                         </div>
 
-                        <!-- 2. 彈出式排版 (Hover Pop-up) - 導入彈性盒子修復重疊問題 -->
                         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] lg:w-max max-w-none bg-white p-6 md:p-8 rounded-2xl text-center shadow-[0_20px_50px_rgba(225,29,72,0.25)] border-2 border-rose-400 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-300 transform scale-95 group-hover:scale-100 flex flex-col items-center">
                             <h3 class="text-base md:text-lg font-black text-rose-700 mb-5 flex items-center tracking-widest whitespace-nowrap">
                                 <span class="animate-pulse mr-2 h-2 w-2 bg-rose-500 rounded-full"></span>
-                                STRESS TEST 壓力測試 (單筆本金基準)
+                                STRESS TEST 壓力測試 (綜合投組基準)
                             </h3>
                             <div class="flex flex-wrap lg:flex-nowrap justify-center gap-3 md:gap-4 w-full">
                                 <div class="bg-rose-50/50 p-4 md:p-5 rounded-xl border border-rose-100 shadow-sm flex flex-col justify-center text-center flex-1 min-w-[45%] lg:min-w-max">
-                                    <span class="text-slate-500 text-xs md:text-sm font-medium mb-2 whitespace-nowrap">歷史最大跌幅</span>
+                                    <span class="text-slate-500 text-xs md:text-sm font-medium mb-2 whitespace-nowrap">單年最大跌幅</span>
                                     <span id="mddPercent" class="font-mono font-bold text-rose-600 text-xl md:text-2xl tracking-tighter whitespace-nowrap">--</span>
                                 </div>
                                 <div class="bg-rose-50/50 p-4 md:p-5 rounded-xl border border-rose-100 shadow-sm flex flex-col justify-center text-center flex-1 min-w-[45%] lg:min-w-max">
-                                    <span class="text-slate-500 text-xs md:text-sm font-medium mb-2 whitespace-nowrap">極端帳面虧損</span>
+                                    <span class="text-slate-500 text-xs md:text-sm font-medium mb-2 whitespace-nowrap">極端虧損預估</span>
                                     <span id="mddAmount" class="font-mono font-bold text-rose-600 text-[clamp(1.25rem,2.5vw,1.875rem)] tracking-tighter whitespace-nowrap">--</span>
                                 </div>
                                 <div class="bg-rose-50/50 p-4 md:p-5 rounded-xl border border-rose-100 shadow-sm flex flex-col justify-center text-center flex-1 min-w-[45%] lg:min-w-max">
-                                    <span class="text-slate-500 text-xs md:text-sm font-medium mb-2 whitespace-nowrap">歷史勝率(10年)</span>
+                                    <span class="text-slate-500 text-xs md:text-sm font-medium mb-2 whitespace-nowrap">10年期勝率</span>
                                     <span id="winRate" class="font-mono font-bold text-emerald-600 text-xl md:text-2xl tracking-tighter whitespace-nowrap">--</span>
                                 </div>
                                 <div class="bg-rose-50/50 p-4 md:p-5 rounded-xl border border-rose-100 shadow-sm flex flex-col justify-center text-center flex-1 min-w-[45%] lg:min-w-max">
-                                    <span class="text-slate-500 text-xs md:text-sm font-medium mb-2 whitespace-nowrap">複合成長(CAGR)</span>
+                                    <span class="text-slate-500 text-xs md:text-sm font-medium mb-2 whitespace-nowrap">歷史 CAGR</span>
                                     <span id="cagrValue" class="font-mono font-bold text-blue-600 text-xl md:text-2xl tracking-tighter whitespace-nowrap">--</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 獨立策略卡片 (導入自適應縮放與防溢出彈出設計) -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
-                    
-                    <!-- 策略 A -->
-                    <div class="relative w-full h-full group cursor-pointer z-10 hover:z-40">
-                        <!-- Base State -->
-                        <div class="bg-white border border-slate-200 group-hover:border-blue-300 p-3 md:p-4 rounded-xl text-center shadow-sm transition-all duration-300 group-hover:opacity-0 flex flex-col justify-center h-full overflow-hidden relative">
-                            <h3 class="text-xs font-bold text-slate-500 mb-1">策略 A：單筆一次</h3>
-                            <div class="text-[clamp(1.1rem,1.8vw,1.5rem)] font-mono font-bold text-blue-600 tracking-tighter truncate w-full px-1" id="lumpSumResult_Base">--</div>
-                            <div class="mt-1 text-xs text-blue-600/70 truncate w-full">淨利: <span id="lumpSumProfit_Base" class="font-mono">--</span></div>
-                            <!-- UI 提示 -->
-                            <div class="absolute bottom-1.5 right-2 flex items-center text-blue-400/50">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                            </div>
-                        </div>
-                        <!-- Hover Pop-up -->
-                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-auto min-w-[110%] bg-white p-4 md:p-5 rounded-2xl text-center shadow-[0_15px_40px_rgba(37,99,235,0.15)] border-2 border-blue-300 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-300 transform scale-95 group-hover:scale-100 flex flex-col justify-center items-center">
-                            <h3 class="text-xs font-bold text-slate-500 mb-2 whitespace-nowrap">策略 A：單筆一次</h3>
-                            <div class="text-xl md:text-2xl font-mono font-bold text-blue-600 tracking-tight whitespace-nowrap px-2" id="lumpSumResult">--</div>
-                            <div class="mt-1 text-xs text-blue-600/70 whitespace-nowrap">淨利: <span id="lumpSumProfit" class="font-mono font-bold text-sm ml-1">--</span></div>
-                        </div>
-                    </div>
-                    
-                    <!-- 策略 B -->
-                    <div class="relative w-full h-full group cursor-pointer z-10 hover:z-40">
-                        <!-- Base State -->
-                        <div class="bg-white border border-slate-200 group-hover:border-emerald-300 p-3 md:p-4 rounded-xl text-center shadow-sm transition-all duration-300 group-hover:opacity-0 flex flex-col justify-center h-full overflow-hidden relative">
-                            <h3 class="text-xs font-bold text-slate-500 mb-1">策略 B：半年分批</h3>
-                            <div class="text-[clamp(1.1rem,1.8vw,1.5rem)] font-mono font-bold text-emerald-600 tracking-tighter truncate w-full px-1" id="dcaResult_Base">--</div>
-                            <div class="mt-1 text-xs text-emerald-600/70 truncate w-full">淨利: <span id="dcaProfit_Base" class="font-mono">--</span></div>
-                            <!-- UI 提示 -->
-                            <div class="absolute bottom-1.5 right-2 flex items-center text-emerald-400/50">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                            </div>
-                        </div>
-                        <!-- Hover Pop-up -->
-                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-auto min-w-[110%] bg-white p-4 md:p-5 rounded-2xl text-center shadow-[0_15px_40px_rgba(16,185,129,0.15)] border-2 border-emerald-300 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-300 transform scale-95 group-hover:scale-100 flex flex-col justify-center items-center">
-                            <h3 class="text-xs font-bold text-slate-500 mb-2 whitespace-nowrap">策略 B：半年分批</h3>
-                            <div class="text-xl md:text-2xl font-mono font-bold text-emerald-600 tracking-tight whitespace-nowrap px-2" id="dcaResult">--</div>
-                            <div class="mt-1 text-xs text-emerald-600/70 whitespace-nowrap">淨利: <span id="dcaProfit" class="font-mono font-bold text-sm ml-1">--</span></div>
-                        </div>
-                    </div>
-                    
-                    <!-- 策略 C -->
-                    <div class="relative w-full h-full group cursor-pointer z-10 hover:z-40">
-                        <!-- Base State -->
-                        <div class="bg-white border border-slate-200 group-hover:border-purple-300 p-3 md:p-4 rounded-xl text-center shadow-sm transition-all duration-300 group-hover:opacity-0 flex flex-col justify-center h-full overflow-hidden relative">
-                            <h3 class="text-xs font-bold text-slate-500 mb-1">策略 C：定期定額</h3>
-                            <div class="text-[clamp(1.1rem,1.8vw,1.5rem)] font-mono font-bold text-purple-600 tracking-tighter truncate w-full px-1" id="regularResult_Base">--</div>
-                            <div class="mt-1 text-xs text-purple-600/70 truncate w-full">淨利: <span id="regularProfit_Base" class="font-mono">--</span></div>
-                            <!-- UI 提示 -->
-                            <div class="absolute bottom-1.5 right-2 flex items-center text-purple-400/50">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                            </div>
-                        </div>
-                        <!-- Hover Pop-up -->
-                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-auto min-w-[110%] bg-white p-4 md:p-5 rounded-2xl text-center shadow-[0_15px_40px_rgba(168,85,247,0.15)] border-2 border-purple-300 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-300 transform scale-95 group-hover:scale-100 flex flex-col justify-center items-center">
-                            <h3 class="text-xs font-bold text-slate-500 mb-2 whitespace-nowrap">策略 C：定期定額</h3>
-                            <div class="text-xl md:text-2xl font-mono font-bold text-purple-600 tracking-tight whitespace-nowrap px-2" id="regularResult">--</div>
-                            <div class="mt-1 text-xs text-purple-600/70 whitespace-nowrap">淨利: <span id="regularProfit" class="font-mono font-bold text-sm ml-1">--</span></div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 終極複合策略卡片 (導入 Hover Pop-up 彈出式設計 與 Fluid Typography) -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 h-full">
-                        
-                        <!-- A+C Card Wrapper -->
                         <div class="relative w-full h-full group cursor-pointer z-10 hover:z-50">
-                            <!-- 1. 預設排版 (Base State) - 加入流體字體與字距微調 -->
                             <div class="bg-orange-50/60 p-5 md:p-6 rounded-xl text-center shadow-sm border border-orange-200 overflow-hidden transition-all duration-300 group-hover:opacity-0 flex flex-col justify-center h-full">
                                 <div class="absolute top-0 right-0 bg-orange-500 text-white text-[10px] font-black px-3 py-1 rounded-bl-lg tracking-wider">MAX RETURN</div>
-                                <h3 class="text-sm font-bold text-orange-700 mb-2">🔥 單筆 + 定額 (A+C)</h3>
-                                <!-- 使用 clamp() 流體字體與 tracking-tighter 縮小字距防止提早截斷 -->
+                                <h3 class="text-sm font-bold text-orange-700 mb-2">🔥 綜合策略 (單筆 A + 定額 C)</h3>
                                 <div class="text-[clamp(1.5rem,2.5vw,2.25rem)] font-mono font-black text-orange-600 drop-shadow-sm my-2 truncate tracking-tighter" id="comboACResult_Base">--</div>
                                 <div class="text-xs md:text-sm text-orange-600/80 mb-3 truncate">名目總獲利: <span id="comboACProfit_Base" class="font-mono font-bold text-orange-600">--</span></div>
-                                <div class="mt-auto pt-3 border-t border-orange-200">
-                                    <p class="text-[10px] md:text-xs text-slate-500 mb-1">扣除通膨後 實質購買力</p>
-                                    <span id="comboACRealPower_Base" class="text-base md:text-lg font-mono font-bold text-slate-800 truncate block tracking-tighter">--</span>
-                                </div>
-                                <!-- UI 提示 -->
-                                <div class="absolute bottom-2 right-2 flex items-center text-[10px] text-orange-400/80">
-                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                    Hover 放大
+                                <div class="mt-auto pt-3 border-t border-orange-200 grid grid-cols-2 gap-2 text-left">
+                                    <div>
+                                        <p class="text-[10px] text-slate-500 mb-1">扣除通膨實質購買力</p>
+                                        <span id="comboACRealPower_Base" class="text-sm md:text-base font-mono font-bold text-slate-800 truncate block tracking-tighter">--</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] text-slate-500 mb-1">費用耗損(摩擦成本)</p>
+                                        <span id="comboACFeeDrag_Base" class="text-sm md:text-base font-mono font-bold text-rose-500 truncate block tracking-tighter">--</span>
+                                    </div>
                                 </div>
                             </div>
-
-                            <!-- 2. 彈出式排版 (Hover Pop-up) - w-auto 自動撐開容器 與 clamp() 流體字體 -->
                             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-auto min-w-[110%] md:min-w-[120%] bg-white p-6 md:p-8 rounded-2xl text-center shadow-[0_20px_50px_rgba(249,115,22,0.25)] border-2 border-orange-400 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-300 transform scale-90 group-hover:scale-100 flex flex-col justify-center items-center">
                                 <div class="absolute top-0 right-0 bg-orange-500 text-white text-[10px] md:text-xs font-black px-4 py-1 rounded-bl-xl tracking-wider shadow-sm">MAX RETURN</div>
-                                <h3 class="text-base font-bold text-orange-700 mb-2 w-full">🔥 單筆 + 定額 (A+C)</h3>
-                                <!-- 解除 truncate，套用 whitespace-nowrap 讓字體自動撐開容器，並用 clamp 控制視覺比例 -->
+                                <h3 class="text-base font-bold text-orange-700 mb-2 w-full">🔥 綜合策略 (單筆 A + 定額 C)</h3>
                                 <div class="text-[clamp(1.75rem,3.5vw,2.75rem)] font-mono font-black text-orange-600 drop-shadow-md my-3 whitespace-nowrap tracking-tighter w-full px-2" id="comboACResult">--</div>
                                 <div class="text-sm md:text-base text-orange-600/80 mb-4 w-full whitespace-nowrap">名目總獲利: <span id="comboACProfit" class="font-mono font-bold text-orange-600 text-lg md:text-xl ml-1">--</span></div>
-                                <div class="self-stretch pt-4 border-t border-orange-200 bg-orange-50/50 -mx-6 md:-mx-8 -mb-6 md:-mb-8 p-6 rounded-b-xl mt-auto">
-                                    <p class="text-sm text-slate-500 mb-1">扣除通膨後 實質購買力</p>
-                                    <span id="comboACRealPower" class="text-[clamp(1.25rem,2vw,1.75rem)] font-mono font-bold text-slate-800 tracking-tight whitespace-nowrap">--</span>
+                                <div class="self-stretch pt-4 border-t border-orange-200 bg-orange-50/50 -mx-6 md:-mx-8 -mb-6 md:-mb-8 p-6 rounded-b-xl mt-auto grid grid-cols-2 gap-4 text-left">
+                                    <div>
+                                        <p class="text-sm text-slate-500 mb-1">扣除通膨實質購買力</p>
+                                        <span id="comboACRealPower" class="text-[clamp(1.1rem,1.8vw,1.5rem)] font-mono font-bold text-slate-800 tracking-tight whitespace-nowrap">--</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-slate-500 mb-1">總摩擦成本(手續+內扣)</p>
+                                        <span id="comboACFeeDrag" class="text-[clamp(1.1rem,1.8vw,1.5rem)] font-mono font-bold text-rose-500 tracking-tight whitespace-nowrap">--</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <!-- B+C Card Wrapper -->
                         <div class="relative w-full h-full group cursor-pointer z-10 hover:z-50">
-                            <!-- 1. 預設排版 (Base State) -->
                             <div class="bg-rose-50/60 p-5 md:p-6 rounded-xl text-center shadow-sm border border-rose-200 overflow-hidden transition-all duration-300 group-hover:opacity-0 flex flex-col justify-center h-full">
                                 <div class="absolute top-0 right-0 bg-rose-500 text-white text-[10px] font-black px-3 py-1 rounded-bl-lg tracking-wider">DEFENSE PRO</div>
-                                <h3 class="text-sm font-bold text-rose-700 mb-2">🛡️ 分批 + 定額 (B+C)</h3>
+                                <h3 class="text-sm font-bold text-rose-700 mb-2">🛡️ 綜合策略 (分批 B + 定額 C)</h3>
                                 <div class="text-[clamp(1.5rem,2.5vw,2.25rem)] font-mono font-black text-rose-600 drop-shadow-sm my-2 truncate tracking-tighter" id="comboBCResult_Base">--</div>
                                 <div class="text-xs md:text-sm text-rose-600/80 mb-3 truncate">名目總獲利: <span id="comboBCProfit_Base" class="font-mono font-bold text-rose-600">--</span></div>
-                                <div class="mt-auto pt-3 border-t border-rose-200">
-                                    <p class="text-[10px] md:text-xs text-slate-500 mb-1">扣除通膨後 實質購買力</p>
-                                    <span id="comboBCRealPower_Base" class="text-base md:text-lg font-mono font-bold text-slate-800 truncate block tracking-tighter">--</span>
-                                </div>
-                                <!-- UI 提示 -->
-                                <div class="absolute bottom-2 right-2 flex items-center text-[10px] text-rose-400/80">
-                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                    Hover 放大
+                                <div class="mt-auto pt-3 border-t border-rose-200 grid grid-cols-2 gap-2 text-left">
+                                    <div>
+                                        <p class="text-[10px] text-slate-500 mb-1">扣除通膨實質購買力</p>
+                                        <span id="comboBCRealPower_Base" class="text-sm md:text-base font-mono font-bold text-slate-800 truncate block tracking-tighter">--</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] text-slate-500 mb-1">費用耗損(摩擦成本)</p>
+                                        <span id="comboBCFeeDrag_Base" class="text-sm md:text-base font-mono font-bold text-rose-500 truncate block tracking-tighter">--</span>
+                                    </div>
                                 </div>
                             </div>
-
-                            <!-- 2. 彈出式排版 (Hover Pop-up) -->
                             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-auto min-w-[110%] md:min-w-[120%] bg-white p-6 md:p-8 rounded-2xl text-center shadow-[0_20px_50px_rgba(225,29,72,0.25)] border-2 border-rose-400 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-300 transform scale-90 group-hover:scale-100 flex flex-col justify-center items-center">
                                 <div class="absolute top-0 right-0 bg-rose-500 text-white text-[10px] md:text-xs font-black px-4 py-1 rounded-bl-xl tracking-wider shadow-sm">DEFENSE PRO</div>
-                                <h3 class="text-base font-bold text-rose-700 mb-2 w-full">🛡️ 分批 + 定額 (B+C)</h3>
+                                <h3 class="text-base font-bold text-rose-700 mb-2 w-full">🛡️ 綜合策略 (分批 B + 定額 C)</h3>
                                 <div class="text-[clamp(1.75rem,3.5vw,2.75rem)] font-mono font-black text-rose-600 drop-shadow-md my-3 whitespace-nowrap tracking-tighter w-full px-2" id="comboBCResult">--</div>
                                 <div class="text-sm md:text-base text-rose-600/80 mb-4 w-full whitespace-nowrap">名目總獲利: <span id="comboBCProfit" class="font-mono font-bold text-rose-600 text-lg md:text-xl ml-1">--</span></div>
-                                <div class="self-stretch pt-4 border-t border-rose-200 bg-rose-50/50 -mx-6 md:-mx-8 -mb-6 md:-mb-8 p-6 rounded-b-xl mt-auto">
-                                    <p class="text-sm text-slate-500 mb-1">扣除通膨後 實質購買力</p>
-                                    <span id="comboBCRealPower" class="text-[clamp(1.25rem,2vw,1.75rem)] font-mono font-bold text-slate-800 tracking-tight whitespace-nowrap">--</span>
+                                <div class="self-stretch pt-4 border-t border-rose-200 bg-rose-50/50 -mx-6 md:-mx-8 -mb-6 md:-mb-8 p-6 rounded-b-xl mt-auto grid grid-cols-2 gap-4 text-left">
+                                    <div>
+                                        <p class="text-sm text-slate-500 mb-1">扣除通膨實質購買力</p>
+                                        <span id="comboBCRealPower" class="text-[clamp(1.1rem,1.8vw,1.5rem)] font-mono font-bold text-slate-800 tracking-tight whitespace-nowrap">--</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-slate-500 mb-1">總摩擦成本(手續+內扣)</p>
+                                        <span id="comboBCFeeDrag" class="text-[clamp(1.1rem,1.8vw,1.5rem)] font-mono font-bold text-rose-500 tracking-tight whitespace-nowrap">--</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -347,58 +395,90 @@
                 </div>
             </div>
 
-            <!-- 圖表區 -->
             <div class="mt-4 border border-slate-200 rounded-xl p-5 bg-white shadow-sm">
-                <h3 class="text-base font-bold text-slate-600 mb-4 text-center tracking-widest uppercase">Asset Growth Trajectory</h3>
+                <h3 class="text-base font-bold text-slate-600 mb-4 text-center tracking-widest uppercase">Asset Growth Trajectory (Combined Portfolio)</h3>
                 <div class="relative h-[350px] w-full">
                     <canvas id="growthChart"></canvas>
                 </div>
             </div>
 
-            <!-- 年度數據表 -->
             <div class="mt-8 overflow-x-auto rounded-xl shadow-sm border border-slate-200">
+                <div class="bg-slate-800 text-white text-sm font-bold p-3 text-center tracking-widest flex items-center justify-center">
+                    <svg class="w-5 h-5 mr-2 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    🔥 A+C 策略年度拆解 (單筆 + 定額)
+                </div>
                 <table class="min-w-full text-sm text-left border-collapse">
-                    <thead class="bg-slate-100 text-slate-600 uppercase text-xs tracking-wider">
+                    <thead class="bg-slate-100 text-slate-600 uppercase text-[11px] md:text-xs tracking-wider">
                         <tr>
-                            <th scope="col" class="px-5 py-4 border-b border-slate-200 font-bold">年度 (YEAR)</th>
-                            <th scope="col" class="px-5 py-4 border-b border-slate-200 text-right font-bold">單筆 (A)<br><span class="text-[10px] text-slate-400 font-normal">總值 / 獲利</span></th>
-                            <th scope="col" class="px-5 py-4 border-b border-slate-200 text-right font-bold">分批 (B)<br><span class="text-[10px] text-slate-400 font-normal">總值 / 獲利</span></th>
-                            <th scope="col" class="px-5 py-4 border-b border-slate-200 text-right font-bold">定額 (C)<br><span class="text-[10px] text-slate-400 font-normal">總值 / 獲利</span></th>
-                            <th scope="col" class="px-5 py-4 border-b border-orange-200 text-right font-bold bg-orange-50 text-orange-700">🔥 A+C 組合<br><span class="text-[10px] text-orange-600 font-normal">總值 / 獲利</span></th>
-                            <th scope="col" class="px-5 py-4 border-b border-rose-200 text-right font-bold bg-rose-50 text-rose-700">🛡️ B+C 組合<br><span class="text-[10px] text-rose-600 font-normal">總值 / 獲利</span></th>
+                            <th scope="col" class="px-3 py-4 border-b border-slate-200 font-bold min-w-[120px]">
+                                年度<br><span class="text-[10px] text-slate-400 font-normal">當年報酬率(被動/主動)</span>
+                            </th>
+                            <th scope="col" class="px-3 py-4 border-b border-slate-200 text-right font-bold bg-stone-50 text-stone-700 border-l border-stone-200">
+                                累計投入總額<br><span class="text-[10px] text-stone-500 font-normal">本金+歷年定額</span>
+                            </th>
+                            <th scope="col" class="px-3 py-4 border-b border-slate-200 text-right font-bold bg-blue-50/50 text-blue-800 border-l border-blue-100">
+                                🛡️ 被動核心部位<br><span class="text-[10px] text-blue-500/70 font-normal">A+C總值 / 累積淨利</span>
+                            </th>
+                            <th scope="col" class="px-3 py-4 border-b border-slate-200 text-right font-bold bg-rose-50/50 text-rose-800 border-l border-rose-100">
+                                🚀 主動衛星部位<br><span class="text-[10px] text-rose-500/70 font-normal">A+C總值 / 累積淨利</span>
+                            </th>
+                            <th scope="col" class="px-3 py-4 border-b border-orange-200 text-right font-bold bg-orange-50 text-orange-800 border-l border-orange-200">
+                                🔥 綜合總計 (A+C)<br><span class="text-[10px] text-orange-600/80 font-normal">合併總值 / 合併淨利</span>
+                            </th>
+                            <th scope="col" class="px-3 py-4 border-b border-slate-200 text-right font-bold bg-slate-50 text-slate-700 border-l border-slate-200">
+                                🛡️ 綜合總計 (B+C)<br><span class="text-[10px] text-slate-500/80 font-normal">(分批+定額) 總值 / 淨利</span>
+                            </th>
                         </tr>
                     </thead>
                     <tbody id="dataTable" class="divide-y divide-slate-100 bg-white">
-                        <!-- 資料由 JS 動態生成 -->
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
 
             <div class="mt-6 text-xs text-slate-500 bg-slate-50 p-5 rounded-lg border border-slate-200 leading-relaxed">
-                <strong class="text-blue-600 block mb-2 text-sm">QUANTITATIVE ADVISORY // 系統警語</strong>
-                <p>1. <strong>通膨折現 (Inflation Discount)：</strong> 畫面顯示之「實質購買力」已利用預設通膨率進行現值(PV)折現，揭示財富真實增長幅度。</p>
-                <p class="mt-1">2. <strong>最大回檔 (MDD) 防線：</strong> 當啟動歷史回測時，請直視紅色壓力測試面板。若極端虧損金額導致心理不適，強烈建議降低單筆本金占比或切換防禦型標的(如00878)。</p>
-                <p class="mt-1">3. <strong>紀律與勝率：</strong> 高獲利的 A+C 組合建立在「絕對紀律」之上。回測數據證明，在經歷 -20% 系統風險時持續扣款，為跨越牛熊週期之唯一解。</p>
+                <strong class="text-blue-600 block mb-2 text-sm">QUANTITATIVE ADVISORY // 雙核精算警語</strong>
+                <p>1. <strong>情境分析 (Scenario Analysis)：</strong> 上方「情境推演」控制項可切換『歷史樂觀』、『保守均值』與『尾部衰退風險』。請務必在不同情境下檢視您的防禦能力。</p>
+                <p class="mt-1">2. <strong>真實序列風險 (SORR)：</strong> 在「尾部風險」情境下，系統會將市場中最慘烈的大跌集中排列在您資產最大時發生。若在此情境下仍能安然度過，代表該資產配置比例極其穩健。</p>
             </div>
         </div>
     </div>
 
     <script>
-        // Chart.js 亮色模式優化
-        Chart.defaults.color = '#64748b'; // slate-500
-        Chart.defaults.font.family = "'Inter', 'Noto Sans TC', sans-serif";
-
         // DOM Elements
         const principalInput = document.getElementById('principal');
-        const etfSelect = document.getElementById('etfSelect');
-        const yearsInput = document.getElementById('years');
+        const regularMonthlyInput = document.getElementById('regularMonthly');
         const inflationRateInput = document.getElementById('inflationRate');
+        const yearsInput = document.getElementById('years');
         const yearsLabel = document.getElementById('yearsLabel');
         
-        const lumpSumResult = document.getElementById('lumpSumResult');
-        const dcaResult = document.getElementById('dcaResult');
-        const regularMonthlyInput = document.getElementById('regularMonthly');
-        const regularResult = document.getElementById('regularResult');
+        // 費用 DOM
+        const tradingFeeInput = document.getElementById('tradingFee');
+        const passiveMgmtFeeInput = document.getElementById('passiveMgmtFee');
+        const activeMgmtFeeInput = document.getElementById('activeMgmtFee');
+
+        // 情境預測 DOM
+        const scenarioRadios = document.querySelectorAll('input[name="scenario"]');
+        const scenarioDesc = document.getElementById('scenarioDesc');
+
+        // 雙選單與比例滑桿
+        const passiveEtfSelect = document.getElementById('passiveEtfSelect');
+        const activeEtfSelect = document.getElementById('activeEtfSelect');
+        const allocationSlider = document.getElementById('allocationSlider');
+        const passiveRatioText = document.getElementById('passiveRatioText');
+        const activeRatioText = document.getElementById('activeRatioText');
+        const passivePrincipal = document.getElementById('passivePrincipal');
+        const activePrincipal = document.getElementById('activePrincipal');
+        const passiveMonthly = document.getElementById('passiveMonthly');
+        const activeMonthly = document.getElementById('activeMonthly');
+        
+        // 行動端績效看板 DOM
+        const portfolioInvested = document.getElementById('portfolioInvested');
+        const portfolioValue = document.getElementById('portfolioValue');
+        const portfolioCagr = document.getElementById('portfolioCagr');
+        const portfolioVolatility = document.getElementById('portfolioVolatility');
+        const portfolioTotalReturn = document.getElementById('portfolioTotalReturn');
+        const portfolioFeeDrag = document.getElementById('portfolioFeeDrag');
+
         const dataTable = document.getElementById('dataTable');
         
         const riskWarningPanel = document.getElementById('riskWarningPanel');
@@ -406,326 +486,313 @@
         const mddAmount = document.getElementById('mddAmount');
         const winRate = document.getElementById('winRate');
         const cagrValue = document.getElementById('cagrValue');
-        
+
         let chartInstance = null;
 
-        // Number formatter
-        const formatter = new Intl.NumberFormat('zh-TW', {
-            style: 'currency',
-            currency: 'TWD',
-            maximumFractionDigits: 0
-        });
-
-        // 10年期歷史含息數據
+        // 10年期歷史含息數據 (2014-2023 基準/指數回溯)
         const historyData = {
+            // 被動核心 (10檔)
             'history_0050': [0.175, -0.064, 0.201, 0.219, -0.043, 0.334, 0.312, 0.211, -0.208, 0.274],
             'history_006208': [0.178, -0.062, 0.204, 0.222, -0.041, 0.338, 0.316, 0.214, -0.206, 0.277],
-            'history_0056': [0.091, -0.052, 0.183, 0.155, -0.041, 0.292, 0.121, 0.184, -0.185, 0.468],
+            'history_00692': [0.165, -0.055, 0.195, 0.210, -0.035, 0.320, 0.305, 0.215, -0.190, 0.285],
             'history_00878': [0.105, -0.021, 0.162, 0.143, -0.035, 0.214, 0.054, 0.223, -0.095, 0.421],
             'history_00713': [0.125, -0.012, 0.141, 0.121, -0.015, 0.223, 0.146, 0.315, -0.071, 0.463],
-            'history_00757': [0.254, 0.182, 0.125, 0.501, 0.023, 0.452, 0.854, 0.175, -0.402, 0.953]
+            'history_0056': [0.091, -0.052, 0.183, 0.155, -0.041, 0.292, 0.121, 0.184, -0.185, 0.468],
+            'history_00919': [0.115, -0.031, 0.152, 0.133, -0.025, 0.224, 0.084, 0.243, -0.105, 0.451],
+            'history_00929': [0.135, -0.041, 0.172, 0.183, -0.035, 0.254, 0.184, 0.253, -0.155, 0.481],
+            'history_00915': [0.120, -0.015, 0.155, 0.140, -0.020, 0.240, 0.160, 0.300, -0.080, 0.470],
+            'history_00940': [0.100, -0.025, 0.140, 0.150, -0.030, 0.200, 0.090, 0.210, -0.110, 0.430],
+            // 主動/主題衛星 (11檔)
+            'history_00757': [0.254, 0.182, 0.125, 0.501, 0.023, 0.452, 0.854, 0.175, -0.402, 0.953],
+            'history_00924': [0.149, 0.055, 0.051, 0.240, -0.015, 0.315, 0.313, 0.244, -0.294, 0.301],
+            'history_00830': [0.285, 0.055, 0.385, 0.415, -0.085, 0.515, 0.425, 0.315, -0.355, 0.655],
+            'history_00891': [0.215, -0.085, 0.245, 0.315, -0.055, 0.485, 0.355, 0.245, -0.315, 0.525],
+            'history_00881': [0.185, -0.045, 0.215, 0.265, -0.025, 0.385, 0.285, 0.235, -0.225, 0.385],
+            'history_00733': [0.145, -0.125, 0.255, 0.185, -0.085, 0.455, 0.655, 0.155, -0.255, 0.725],
+            'history_00662': [0.190, 0.095, 0.220, 0.390, 0.005, 0.480, 0.275, 0.280, -0.330, 0.540],
+            'history_00770': [0.200, 0.105, 0.240, 0.420, 0.015, 0.510, 0.305, 0.290, -0.350, 0.600],
+            'history_00893': [0.250, 0.010, 0.350, 0.650, -0.150, 0.400, 0.250, 0.450, -0.450, 0.550],
+            'history_00935': [0.205, -0.065, 0.235, 0.285, -0.045, 0.455, 0.325, 0.265, -0.285, 0.485],
+            'history_00941': [0.260, 0.040, 0.360, 0.400, -0.070, 0.500, 0.410, 0.300, -0.340, 0.630]
         };
+
+        // 各檔 ETF 真實內扣總費用率 (TER)
+        const etfTerData = {
+            'history_0050': 0.43, 'history_006208': 0.25, 'history_00692': 0.24, 'history_00878': 0.46, 'history_00713': 0.73,
+            'history_0056': 0.60, 'history_00919': 0.55, 'history_00929': 0.50, 'history_00915': 0.65, 'history_00940': 0.35,
+            'history_00757': 0.98, 'history_00924': 0.79, 'history_00830': 0.68, 'history_00891': 0.49, 'history_00881': 0.45,
+            'history_00733': 1.48, 'history_00662': 0.55, 'history_00770': 0.85, 'history_00893': 0.80, 'history_00935': 0.65, 'history_00941': 0.88,
+            '9': 0.35, '12': 0.85
+        };
+
+        const formatter = new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'TWD', maximumFractionDigits: 0 });
+
+        // 取得依據情境動態調整後的報酬率陣列 (核心計量引擎)
+        function getAdjustedRateArray(mode, scenario) {
+            if (!mode.startsWith('history_')) {
+                let rate = parseFloat(mode) / 100;
+                if (scenario === 'bear') return Array(10).fill(rate - 0.04);
+                if (scenario === 'base') return Array(10).fill(rate * 0.75);
+                return Array(10).fill(rate);
+            }
+
+            let rawArray = [...historyData[mode]];
+
+            if (scenario === 'optimistic') {
+                // 黃金十年：原封不動輸出歷史軌跡
+                return rawArray;
+            } else if (scenario === 'base') {
+                // 溫和基準：計算幾何均值，並打 75 折抹平所有波動
+                let cagrMultiplier = 1;
+                rawArray.forEach(r => cagrMultiplier *= (1 + r));
+                let cagr = Math.pow(cagrMultiplier, 1/10) - 1;
+                let conservativeCagr = cagr * 0.75; 
+                return Array(10).fill(conservativeCagr);
+            } else if (scenario === 'bear') {
+                // 尾部風險 (SORR)：以 0050 為基準，找出最慘烈的年份，並將這些災難年全部集中排到投資後期
+                let benchmarkArray = historyData['history_0050'];
+                let indices = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+                indices.sort((a, b) => benchmarkArray[b] - benchmarkArray[a]); // 降冪排序 (好 -> 壞)
+                // 外加 2% 通縮懲罰
+                return indices.map(idx => rawArray[idx] - 0.02);
+            }
+        }
 
         function calculate() {
             const principal = parseFloat(principalInput.value) || 0;
             const years = parseInt(yearsInput.value);
             const regularMonthly = parseFloat(regularMonthlyInput.value) || 0;
             const inflationRate = parseFloat(inflationRateInput.value) / 100 || 0;
-            const selectedMode = etfSelect.value;
+            
+            const tradingFeeRate = parseFloat(tradingFeeInput.value) / 100 || 0;
+            const passiveMgmtFee = parseFloat(passiveMgmtFeeInput.value) / 100 || 0;
+            const activeMgmtFee = parseFloat(activeMgmtFeeInput.value) / 100 || 0;
+
+            const passiveMode = passiveEtfSelect.value;
+            const activeMode = activeEtfSelect.value;
+            const passiveRatio = parseInt(allocationSlider.value);
+            const activeRatio = 100 - passiveRatio;
             
             yearsLabel.textContent = years;
 
-            // --- 風險指標計算區 ---
-            if (selectedMode.startsWith('history_')) {
+            // --- 偵測目前選擇的總經情境 ---
+            let selectedScenario = 'optimistic';
+            scenarioRadios.forEach(el => { if(el.checked) selectedScenario = el.value; });
+
+            if(selectedScenario === 'optimistic') {
+                scenarioDesc.innerHTML = '註：完全重現 2014-2023 歷史真實順序。保留量化寬鬆與科技爆發紅利，<strong class="text-orange-600">適合樂觀預期</strong>。';
+            } else if(selectedScenario === 'base') {
+                scenarioDesc.innerHTML = '註：將歷史波動完全抹平，轉化為<strong class="text-blue-600">打 75 折後的保守固定年化報酬</strong>。模擬無大起大落的溫和經濟體。';
+            } else if(selectedScenario === 'bear') {
+                scenarioDesc.innerHTML = '註：終極壓力測試！強制將大盤最慘的股災集中在投資後期發生，外加 2% 通縮懲罰。<strong class="text-rose-600">用以檢視資金規模最大時遭遇崩盤的防禦底氣 (SORR風險)</strong>。';
+            }
+
+            // 取得對應情境的 10 年期陣列
+            const passiveRates = getAdjustedRateArray(passiveMode, selectedScenario);
+            const activeRates = getAdjustedRateArray(activeMode, selectedScenario);
+
+            const principalP = principal * (passiveRatio / 100);
+            const principalA = principal * (activeRatio / 100);
+            const regMonthP = regularMonthly * (passiveRatio / 100);
+            const regMonthA = regularMonthly * (activeRatio / 100);
+
+            const netPrincipalP = principalP * (1 - tradingFeeRate);
+            const netPrincipalA = principalA * (1 - tradingFeeRate);
+            const netRegMonthP = regMonthP * (1 - tradingFeeRate);
+            const netRegMonthA = regMonthA * (1 - tradingFeeRate);
+
+            passiveRatioText.textContent = passiveRatio;
+            activeRatioText.textContent = activeRatio;
+            passivePrincipal.textContent = formatter.format(principalP);
+            activePrincipal.textContent = formatter.format(principalA);
+            passiveMonthly.textContent = formatter.format(regMonthP);
+            activeMonthly.textContent = formatter.format(regMonthA);
+
+            // 綜合績效指標計算 (採用動態情境陣列)
+            let combinedNetRates = [];
+            for (let i = 0; i < 10; i++) {
+                let rP = passiveRates[i] - passiveMgmtFee;
+                let rA = activeRates[i] - activeMgmtFee;
+                combinedNetRates.push( rP * (passiveRatio/100) + rA * (activeRatio/100) );
+            }
+            
+            let cagrProduct = 1;
+            combinedNetRates.forEach(r => cagrProduct *= (1 + r));
+            let netCAGHVal = Math.pow(cagrProduct, 1/10) - 1;
+
+            let avgNetRate = combinedNetRates.reduce((a, b) => a + b, 0) / 10;
+            let varianceSum = combinedNetRates.reduce((sum, r) => sum + Math.pow(r - avgNetRate, 2), 0);
+            let portfolioVolatilityVal = Math.sqrt(varianceSum / 9);
+
+            let combinedGrossRates = [];
+            for (let i = 0; i < 10; i++) {
+                combinedGrossRates.push(passiveRates[i] * (passiveRatio/100) + activeRates[i] * (activeRatio/100));
+            }
+            let minRate = Math.min(...combinedGrossRates);
+            const mddPctStr = (minRate * 100).toFixed(2) + '%';
+            const mddAmtStr = formatter.format(principal * minRate);
+            
+            mddPercent.textContent = mddPctStr; mddAmount.textContent = mddAmtStr;
+            document.getElementById('mddPercent_Base').textContent = mddPctStr;
+            document.getElementById('mddAmount_Base').textContent = mddAmtStr;
+            
+            let winCount = combinedGrossRates.filter(r => r > 0).length;
+            const winRateStr = ((winCount / 10) * 100).toFixed(0) + '%';
+            winRate.textContent = winRateStr; document.getElementById('winRate_Base').textContent = winRateStr;
+            
+            let grossCagrMultiplier = 1;
+            combinedGrossRates.forEach(r => grossCagrMultiplier *= (1 + r));
+            let grossCagr = Math.pow(grossCagrMultiplier, 1/10) - 1;
+            cagrValue.textContent = (grossCagr * 100).toFixed(2) + '%';
+            document.getElementById('cagrValue_Base').textContent = (grossCagr * 100).toFixed(2) + '%';
+
+            if (passiveMode.startsWith('history_') || activeMode.startsWith('history_')) {
                 riskWarningPanel.classList.remove('hidden');
-                const rates = historyData[selectedMode];
-                
-                let minRate = Math.min(...rates);
-                const mddPctStr = (minRate * 100).toFixed(2) + '%';
-                const mddAmtStr = formatter.format(principal * minRate);
-                
-                mddPercent.textContent = mddPctStr;
-                mddAmount.textContent = mddAmtStr;
-                document.getElementById('mddPercent_Base').textContent = mddPctStr;
-                document.getElementById('mddAmount_Base').textContent = mddAmtStr;
-                
-                let winCount = rates.filter(r => r > 0).length;
-                const winRateStr = ((winCount / rates.length) * 100).toFixed(0) + '%';
-                winRate.textContent = winRateStr;
-                document.getElementById('winRate_Base').textContent = winRateStr;
-                
-                let cagrMultiplier = 1;
-                rates.forEach(r => cagrMultiplier *= (1 + r));
-                let cagr = Math.pow(cagrMultiplier, 1/10) - 1;
-                const cagrStr = (cagr * 100).toFixed(2) + '%';
-                cagrValue.textContent = cagrStr;
-                document.getElementById('cagrValue_Base').textContent = cagrStr;
             } else {
                 riskWarningPanel.classList.add('hidden');
             }
 
             let labels = [];
-            let lumpSumData = [], dcaData = [], regularData = [], comboACData = [], comboBCData = [];
+            let comboACData = [], comboBCData = [];
             let tableHTML = '';
 
-            let balanceLumpSum = principal;
-            let balanceDCA = 0;
-            let cashDCA = principal;
-            let balanceRegular = 0;
+            let balLumpSumP = netPrincipalP, balLumpSumA = netPrincipalA;
+            let cashDCAP = netPrincipalP, cashDCAA = netPrincipalA;
+            let balDCAP = 0, balDCAA = 0, balRegularP = 0, balRegularA = 0;
+            let nf_balLumpSumP = principalP, nf_balLumpSumA = principalA;
+            let nf_cashDCAP = principalP, nf_cashDCAA = principalA;
+            let nf_balDCAP = 0, nf_balDCAA = 0, nf_balRegularP = 0, nf_balRegularA = 0;
 
             for (let i = 1; i <= years; i++) {
                 labels.push(`Year ${i}`);
+                let grossAnnualRateP = passiveRates[(i - 1) % 10];
+                let grossAnnualRateA = activeRates[(i - 1) % 10];
+                let netAnnualRateP = grossAnnualRateP - passiveMgmtFee;
+                let netAnnualRateA = grossAnnualRateA - activeMgmtFee;
 
-                let annualRate = 0;
-                if (selectedMode.startsWith('history_')) {
-                    const rates = historyData[selectedMode];
-                    annualRate = rates[(i - 1) % rates.length];
-                } else {
-                    annualRate = parseFloat(selectedMode) / 100;
-                }
-
-                const monthlyRate = Math.pow(1 + annualRate, 1 / 12) - 1;
+                let grossMonthlyRateP = Math.pow(1 + grossAnnualRateP, 1 / 12) - 1;
+                let grossMonthlyRateA = Math.pow(1 + grossAnnualRateA, 1 / 12) - 1;
+                let netMonthlyRateP = Math.pow(1 + netAnnualRateP, 1 / 12) - 1;
+                let netMonthlyRateA = Math.pow(1 + netAnnualRateA, 1 / 12) - 1;
 
                 for (let m = 1; m <= 12; m++) {
-                    balanceLumpSum *= (1 + monthlyRate);
+                    balLumpSumP *= (1 + netMonthlyRateP); balLumpSumA *= (1 + netMonthlyRateA);
                     if (i === 1 && m <= 6) {
-                        const investAmount = principal / 6;
-                        cashDCA -= investAmount;
-                        balanceDCA += investAmount;
+                        let invP = netPrincipalP / 6; cashDCAP -= invP; balDCAP += invP;
+                        let invA = netPrincipalA / 6; cashDCAA -= invA; balDCAA += invA;
                     }
-                    balanceDCA *= (1 + monthlyRate);
-                    balanceRegular += regularMonthly;
-                    balanceRegular *= (1 + monthlyRate);
+                    balDCAP *= (1 + netMonthlyRateP); balDCAA *= (1 + netMonthlyRateA);
+                    balRegularP += netRegMonthP; balRegularP *= (1 + netMonthlyRateP);
+                    balRegularA += netRegMonthA; balRegularA *= (1 + netMonthlyRateA);
+
+                    nf_balLumpSumP *= (1 + grossMonthlyRateP); nf_balLumpSumA *= (1 + grossMonthlyRateA);
+                    if (i === 1 && m <= 6) {
+                        let nf_invP = principalP / 6; nf_cashDCAP -= nf_invP; nf_balDCAP += nf_invP;
+                        let nf_invA = principalA / 6; nf_cashDCAA -= nf_invA; nf_balDCAA += nf_invA;
+                    }
+                    nf_balDCAP *= (1 + grossMonthlyRateP); nf_balDCAA *= (1 + grossMonthlyRateA);
+                    nf_balRegularP += regMonthP; nf_balRegularP *= (1 + grossMonthlyRateP);
+                    nf_balRegularA += regMonthA; nf_balRegularA *= (1 + grossMonthlyRateA);
                 }
 
-                const currentLumpSumFV = balanceLumpSum;
-                const currentDCAFv = balanceDCA + cashDCA; 
-                const currentRegularFV = balanceRegular;
-                const currentACFv = currentLumpSumFV + currentRegularFV;
-                const currentBCFv = currentDCAFv + currentRegularFV;
+                const regTotalP = regMonthP * i * 12;
+                const regTotalA = regMonthA * i * 12;
+                const currentAC_P = balLumpSumP + balRegularP;
+                const profitAC_P = currentAC_P - (principalP + regTotalP);
+                const currentAC_A = balLumpSumA + balRegularA;
+                const profitAC_A = currentAC_A - (principalA + regTotalA);
 
-                lumpSumData.push(currentLumpSumFV);
-                dcaData.push(currentDCAFv);
-                regularData.push(currentRegularFV);
-                comboACData.push(currentACFv);
-                comboBCData.push(currentBCFv);
+                const currentAC_Combined = currentAC_P + currentAC_A;
+                const profitAC_Combined = currentAC_Combined - (principal + regTotalP + regTotalA);
+                comboACData.push(currentAC_Combined);
 
-                const isHistorical = selectedMode.startsWith('history_');
-                const rateColor = annualRate >= 0 ? 'text-emerald-600' : 'text-rose-600';
-                const rateDisplay = isHistorical ? `<div class="${rateColor} text-[10px] mt-1 font-mono">${(annualRate > 0 ? '+' : '')}${(annualRate * 100).toFixed(1)}%</div>` : '';
+                const currentBC_Combined = balDCAP + cashDCAP + balRegularP + balDCAA + cashDCAA + balRegularA;
+                comboBCData.push(currentBC_Combined);
+
+                let combinedAnnualRate = grossAnnualRateP * (passiveRatio/100) + grossAnnualRateA * (activeRatio/100);
+                const rateColor = combinedAnnualRate >= 0 ? 'text-emerald-600' : 'text-rose-600';
                 
-                const lumpSumPft = currentLumpSumFV - principal;
-                const dcaPft = currentDCAFv - principal;
-                const regularPft = currentRegularFV - (regularMonthly * i * 12);
-                const acPft = currentACFv - (principal + regularMonthly * i * 12);
-                const bcPft = currentBCFv - (principal + regularMonthly * i * 12);
-
+                const cumulativeInvested = principal + (regularMonthly * i * 12);
+                
                 tableHTML += `
                     <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="px-5 py-4 whitespace-nowrap font-bold text-slate-700 align-middle font-sans border-r border-slate-100">Y${i} ${rateDisplay}</td>
-                        <td class="px-5 py-4 whitespace-nowrap text-right border-r border-slate-100">
-                            <div class="font-mono text-blue-700 font-bold">${formatter.format(currentLumpSumFV)}</div>
-                            <div class="text-[11px] font-mono ${lumpSumPft>=0?'text-blue-500':'text-rose-500'}">${lumpSumPft >= 0 ? '+' : ''}${formatter.format(lumpSumPft)}</div>
-                        </td>
-                        <td class="px-5 py-4 whitespace-nowrap text-right border-r border-slate-100">
-                            <div class="font-mono text-emerald-700 font-bold">${formatter.format(currentDCAFv)}</div>
-                            <div class="text-[11px] font-mono ${dcaPft>=0?'text-emerald-500':'text-rose-500'}">${dcaPft >= 0 ? '+' : ''}${formatter.format(dcaPft)}</div>
-                        </td>
-                        <td class="px-5 py-4 whitespace-nowrap text-right border-r border-slate-100">
-                            <div class="font-mono text-purple-700 font-bold">${formatter.format(currentRegularFV)}</div>
-                            <div class="text-[11px] font-mono ${regularPft>=0?'text-purple-500':'text-rose-500'}">${regularPft >= 0 ? '+' : ''}${formatter.format(regularPft)}</div>
-                        </td>
-                        <td class="px-5 py-4 whitespace-nowrap text-right bg-orange-50/50 border-r border-orange-100">
-                            <div class="font-mono text-orange-600 font-bold">${formatter.format(currentACFv)}</div>
-                            <div class="text-[11px] font-mono ${acPft>=0?'text-orange-500':'text-rose-500'}">${acPft >= 0 ? '+' : ''}${formatter.format(acPft)}</div>
-                        </td>
-                        <td class="px-5 py-4 whitespace-nowrap text-right bg-rose-50/50">
-                            <div class="font-mono text-rose-600 font-bold">${formatter.format(currentBCFv)}</div>
-                            <div class="text-[11px] font-mono ${bcPft>=0?'text-rose-500':'text-rose-500'}">${bcPft >= 0 ? '+' : ''}${formatter.format(bcPft)}</div>
-                        </td>
+                        <td class="px-3 py-4 font-bold border-r border-slate-100">Y${i}<div class="${rateColor} text-[10px] mt-1 font-mono">${combinedAnnualRate >= 0 ? '+' : ''}${(combinedAnnualRate * 100).toFixed(1)}%</div></td>
+                        <td class="px-3 py-4 text-right border-r border-stone-100 bg-stone-50/40"><div class="font-mono text-stone-700 font-bold">${formatter.format(cumulativeInvested)}</div></td>
+                        <td class="px-3 py-4 text-right border-r border-blue-100 bg-blue-50/10"><div class="font-mono text-blue-800">${formatter.format(currentAC_P)}</div></td>
+                        <td class="px-3 py-4 text-right border-r border-rose-100 bg-rose-50/10"><div class="font-mono text-rose-800">${formatter.format(currentAC_A)}</div></td>
+                        <td class="px-3 py-4 text-right bg-orange-50/30 border-r border-orange-200"><div class="font-mono text-orange-600 font-bold">${formatter.format(currentAC_Combined)}</div></td>
+                        <td class="px-3 py-4 text-right bg-slate-50/30"><div class="font-mono text-slate-700">${formatter.format(currentBC_Combined)}</div></td>
                     </tr>
                 `;
             }
 
             const totalRegularPrincipal = regularMonthly * years * 12;
-            
-            // 計算並格式化所有文字數據
-            const acResultText = formatter.format(comboACData[years - 1]);
-            const acProfitText = formatter.format(comboACData[years - 1] - (principal + totalRegularPrincipal));
-            const bcResultText = formatter.format(comboBCData[years - 1]);
-            const bcProfitText = formatter.format(comboBCData[years - 1] - (principal + totalRegularPrincipal));
-            
+            const totalInvestedAmt = principal + totalRegularPrincipal;
             const inflationDiscount = Math.pow(1 + inflationRate, years);
-            const acRealPowerText = formatter.format(comboACData[years - 1] / inflationDiscount);
-            const bcRealPowerText = formatter.format(comboBCData[years - 1] / inflationDiscount);
+            
+            portfolioInvested.textContent = (totalInvestedAmt / 10000).toFixed(1) + " 萬元";
+            portfolioValue.textContent = (comboACData[years - 1] / 10000).toFixed(0) + " 萬元";
+            portfolioCagr.textContent = (netCAGHVal * 100).toFixed(1) + "%";
+            portfolioVolatility.textContent = (portfolioVolatilityVal * 100).toFixed(1) + "%";
+            portfolioTotalReturn.textContent = (((comboACData[years - 1] - totalInvestedAmt) / totalInvestedAmt) * 100).toFixed(1) + "%";
 
-            // 計算 A, B, C 單一策略數據
-            const lumpSumText = formatter.format(lumpSumData[years - 1]);
-            const lumpSumPftText = formatter.format(lumpSumData[years - 1] - principal);
-            const dcaText = formatter.format(dcaData[years - 1]);
-            const dcaPftText = formatter.format(dcaData[years - 1] - principal);
-            const regularText = formatter.format(regularData[years - 1]);
-            const regularPftText = formatter.format(regularData[years - 1] - totalRegularPrincipal);
+            const nf_currentAC_Combined = nf_balLumpSumP + nf_balRegularP + nf_balLumpSumA + nf_balRegularA;
+            const feeDragAC = nf_currentAC_Combined - comboACData[years - 1];
+            portfolioFeeDrag.textContent = formatter.format(feeDragAC);
 
-            // --- 更新 彈出式排版 (Hover Pop-up) 的資料 (A, B, C) ---
-            lumpSumResult.textContent = lumpSumText;
-            document.getElementById('lumpSumProfit').textContent = lumpSumPftText;
-            dcaResult.textContent = dcaText;
-            document.getElementById('dcaProfit').textContent = dcaPftText;
-            regularResult.textContent = regularText;
-            document.getElementById('regularProfit').textContent = regularPftText;
+            document.getElementById('comboACResult').textContent = formatter.format(comboACData[years - 1]);
+            document.getElementById('comboACProfit').textContent = formatter.format(comboACData[years - 1] - totalInvestedAmt);
+            document.getElementById('comboACRealPower').textContent = formatter.format(comboACData[years - 1] / inflationDiscount);
+            document.getElementById('comboACFeeDrag').textContent = "-" + formatter.format(feeDragAC);
 
-            // --- 更新 預設排版 (Base State) 的資料 (A, B, C) ---
-            document.getElementById('lumpSumResult_Base').textContent = lumpSumText;
-            document.getElementById('lumpSumProfit_Base').textContent = lumpSumPftText;
-            document.getElementById('dcaResult_Base').textContent = dcaText;
-            document.getElementById('dcaProfit_Base').textContent = dcaPftText;
-            document.getElementById('regularResult_Base').textContent = regularText;
-            document.getElementById('regularProfit_Base').textContent = regularPftText;
+            document.getElementById('comboBCResult').textContent = formatter.format(comboBCData[years - 1]);
+            document.getElementById('comboBCProfit').textContent = formatter.format(comboBCData[years - 1] - totalInvestedAmt);
+            document.getElementById('comboBCRealPower').textContent = formatter.format(comboBCData[years - 1] / inflationDiscount);
+            
+            const nf_currentBC_Combined = nf_balDCAP + nf_cashDCAP + nf_balRegularP + nf_balDCAA + nf_cashDCAA + nf_balRegularA;
+            document.getElementById('comboBCFeeDrag').textContent = "-" + formatter.format(nf_currentBC_Combined - comboBCData[years - 1]);
 
-            // --- 更新 彈出式排版 (Hover Pop-up) 的資料 (A+C, B+C) ---
-            document.getElementById('comboACResult').textContent = acResultText;
-            document.getElementById('comboACProfit').textContent = acProfitText;
-            document.getElementById('comboACRealPower').textContent = acRealPowerText;
+            document.getElementById('comboACResult_Base').textContent = formatter.format(comboACData[years - 1]);
+            document.getElementById('comboACProfit_Base').textContent = formatter.format(comboACData[years - 1] - totalInvestedAmt);
+            document.getElementById('comboACRealPower_Base').textContent = formatter.format(comboACData[years - 1] / inflationDiscount);
+            document.getElementById('comboACFeeDrag_Base').textContent = "-" + formatter.format(feeDragAC);
 
-            document.getElementById('comboBCResult').textContent = bcResultText;
-            document.getElementById('comboBCProfit').textContent = bcProfitText;
-            document.getElementById('comboBCRealPower').textContent = bcRealPowerText;
-
-            // --- 更新 預設排版 (Base State) 的資料 ---
-            document.getElementById('comboACResult_Base').textContent = acResultText;
-            document.getElementById('comboACProfit_Base').textContent = acProfitText;
-            document.getElementById('comboACRealPower_Base').textContent = acRealPowerText;
-
-            document.getElementById('comboBCResult_Base').textContent = bcResultText;
-            document.getElementById('comboBCProfit_Base').textContent = bcProfitText;
-            document.getElementById('comboBCRealPower_Base').textContent = bcRealPowerText;
+            document.getElementById('comboBCResult_Base').textContent = formatter.format(comboBCData[years - 1]);
+            document.getElementById('comboBCProfit_Base').textContent = formatter.format(comboBCData[years - 1] - totalInvestedAmt);
+            document.getElementById('comboBCRealPower_Base').textContent = formatter.format(comboBCData[years - 1] / inflationDiscount);
+            document.getElementById('comboBCFeeDrag_Base').textContent = "-" + formatter.format(nf_currentBC_Combined - comboBCData[years - 1]);
 
             dataTable.innerHTML = tableHTML;
-            updateChart(labels, lumpSumData, dcaData, regularData, comboACData, comboBCData);
+            updateChart(labels, comboACData, comboBCData);
         }
 
-        function updateChart(labels, lumpSumData, dcaData, regularData, comboACData, comboBCData) {
+        function updateChart(labels, comboACData, comboBCData) {
             const ctx = document.getElementById('growthChart').getContext('2d');
-            
             if (chartInstance) chartInstance.destroy();
-
             chartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels,
                     datasets: [
-                        {
-                            label: '單筆(A)',
-                            data: lumpSumData,
-                            borderColor: '#2563eb', // blue-600
-                            borderWidth: 2,
-                            hidden: true,
-                            tension: 0.4
-                        },
-                        {
-                            label: '半年分批(B)',
-                            data: dcaData,
-                            borderColor: '#059669', // emerald-600
-                            borderWidth: 2,
-                            borderDash: [5, 5],
-                            hidden: true,
-                            tension: 0.4
-                        },
-                        {
-                            label: '定期定額(C)',
-                            data: regularData,
-                            borderColor: '#9333ea', // purple-600
-                            borderWidth: 2,
-                            borderDash: [2, 2],
-                            hidden: true,
-                            tension: 0.4
-                        },
-                        {
-                            label: '🔥 A+C',
-                            data: comboACData,
-                            borderColor: '#ea580c', // orange-600
-                            backgroundColor: 'rgba(234, 88, 12, 0.1)',
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.4,
-                            pointBackgroundColor: '#ea580c',
-                            pointBorderColor: '#fff',
-                            pointHoverRadius: 6
-                        },
-                        {
-                            label: '🛡️ B+C',
-                            data: comboBCData,
-                            borderColor: '#e11d48', // rose-600
-                            borderWidth: 3,
-                            borderDash: [4, 4],
-                            tension: 0.4,
-                            pointBackgroundColor: '#e11d48',
-                            pointHoverRadius: 6
-                        }
+                        { label: '🔥 A+C (單筆+定額)', data: comboACData, borderColor: '#ea580c', backgroundColor: 'rgba(234, 88, 12, 0.1)', borderWidth: 3, fill: true, tension: 0.4 },
+                        { label: '🛡️ B+C (分批+定額)', data: comboBCData, borderColor: '#e11d48', borderWidth: 3, borderDash: [4, 4], tension: 0.4 }
                     ]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false,
-                    },
-                    plugins: {
-                        legend: { 
-                            position: 'top', 
-                            labels: { 
-                                usePointStyle: true, 
-                                padding: 20,
-                                font: { family: "'Inter', 'Noto Sans TC', sans-serif" }
-                            } 
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                            titleColor: '#1e293b',
-                            bodyColor: '#475569',
-                            borderColor: 'rgba(0,0,0,0.1)',
-                            borderWidth: 1,
-                            padding: 12,
-                            titleFont: { family: "'Inter', 'Noto Sans TC', sans-serif", weight: 'bold' },
-                            bodyFont: { family: "'JetBrains Mono', monospace" },
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) label += ': ';
-                                    if (context.parsed.y !== null) {
-                                        label += new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'TWD', maximumFractionDigits: 0 }).format(context.parsed.y);
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: { 
-                            grid: { color: 'rgba(0, 0, 0, 0.05)' },
-                            ticks: { font: { family: "'JetBrains Mono', monospace" } }
-                        },
-                        y: {
-                            grid: { color: 'rgba(0, 0, 0, 0.05)' },
-                            ticks: { 
-                                font: { family: "'JetBrains Mono', monospace" },
-                                callback: value => value / 10000 + ' 萬' 
-                            }
-                        }
-                    }
-                }
+                options: { responsive: true, maintainAspectRatio: false, scales: { x: { ticks: { font: { family: "'JetBrains Mono'" } } }, y: { ticks: { callback: v => v / 10000 + ' 萬', font: { family: "'JetBrains Mono'" } } } } }
             });
         }
 
-        // Listeners
-        [principalInput, etfSelect, yearsInput, regularMonthlyInput, inflationRateInput].forEach(el => {
-            el.addEventListener('input', calculate);
-        });
+        function syncTER() {
+            if (etfTerData[passiveEtfSelect.value]) passiveMgmtFeeInput.value = etfTerData[passiveEtfSelect.value];
+            if (etfTerData[activeEtfSelect.value]) activeMgmtFeeInput.value = etfTerData[activeEtfSelect.value];
+            calculate();
+        }
 
-        // Init
-        calculate();
+        [principalInput, yearsInput, regularMonthlyInput, inflationRateInput, allocationSlider, tradingFeeInput, passiveMgmtFeeInput, activeMgmtFeeInput].forEach(el => el && el.addEventListener('input', calculate));
+        [passiveEtfSelect, activeEtfSelect].forEach(el => el && el.addEventListener('change', syncTER));
+        scenarioRadios.forEach(el => el && el.addEventListener('change', calculate));
+        
+        syncTER();
     </script>
 </body>
 </html>
